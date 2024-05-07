@@ -1,5 +1,5 @@
 'use client'
-import Layout from "@/components/dashboard/layout"
+import NavbarLayout from "@/components/dashboard/layout"
 import CatagoriesList from "./components/catagoriesList"
 import useSWR from "swr";
 
@@ -31,14 +31,14 @@ const Category = () => {
 
     if (isLoading)
         return (
-            <Layout>
+            <NavbarLayout>
                 <div>loading...</div>
-            </Layout >
+            </NavbarLayout >
         )
     return (
-        <Layout>
+        <NavbarLayout>
             <CatagoriesList categories={data.data} />
-        </Layout >
+        </NavbarLayout >
     )
 }
 export default Category

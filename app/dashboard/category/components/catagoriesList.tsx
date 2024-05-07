@@ -3,13 +3,23 @@ import Category from '../page';
 import { Button } from 'react-bootstrap';
 import { useState } from 'react';
 import CreateModal from './create.modal';
+import UpdateModal from './update.modal';
+import DeleteModal from './delete.modal';
 
 interface IProps {
     categories: ICategory[]
 }
 const CatagoriesList = (props: IProps) => {
     const { categories } = props
+
+    const [category, setCategory] = useState<ICategory | null>(null)
     const [showModalCreate, setShowModalCreate] = useState<boolean>(false);
+    const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
+    const [showModalUpdate, setShowModalUpdate] = useState<boolean>(false);
+
+    const handleDelete = (id: number) => {
+
+    }
 
     return (
         <>
@@ -27,14 +37,24 @@ const CatagoriesList = (props: IProps) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {categories.map(category => {
+                    {categories.map(item => {
                         return (
-                            <tr key={category.category_id}>
-                                <td>{category.category_id}</td>
-                                <td>{category.category_name}</td>
+                            <tr key={item.category_id}>
+                                <td>{item.category_id}</td>
+                                <td>{item.category_name}</td>
                                 <td>
-                                    <Button variant='warning' className='mr-3'>Edit</Button>
-                                    <Button variant='danger'>Delete</Button>
+                                    <Button variant='warning' className='mr-3'
+                                        onClick={() => {
+                                            setCategory(item)
+                                            setShowModalUpdate(true)
+                                        }}
+                                    >Edit</Button>
+                                    <Button variant='danger'
+                                        onClick={() => {
+                                            setCategory(item)
+                                            setShowModalDelete(true)
+                                        }}
+                                    >Delete</Button>
                                 </td>
                             </tr>
                         )
@@ -45,6 +65,18 @@ const CatagoriesList = (props: IProps) => {
             <CreateModal
                 showModalCreate={showModalCreate}
                 setShowModalCreate={setShowModalCreate}
+            />
+            <DeleteModal
+                showModalDelete={showModalDelete}
+                setShowModalDelete={setShowModalDelete}
+                category={category}
+                setCategory={setCategory}
+            />
+            <UpdateModal
+                showModalUpdate={showModalUpdate}
+                setShowModalUpdate={setShowModalUpdate}
+                category={category}
+                setCategory={setCategory}
             />
         </>
     )
