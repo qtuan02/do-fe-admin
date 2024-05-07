@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Constants from "@/commons/environment";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -24,7 +25,7 @@ export default function LoginPage() {
         }
 
         try{
-            const response = await fetch("https://nguyenkim-be.onrender.com/v1/auth/login", {
+            const response = await fetch(Constants.URL_V1+"/auth/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -38,9 +39,10 @@ export default function LoginPage() {
             const message = data.message;
             if(response.ok){
                 const token = data.data.token;
-                document.cookie = `token=${token}; path=/`;
-
-                router.push("/dashboard");
+                document.cookie = await `token=${token}; path=/`;
+                if(document.cookie){
+                    router.push("/dashboard");
+                }
             }else{
                 setError(message);
             }

@@ -4,6 +4,7 @@ import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import { toast } from 'react-toastify';
 import { useSWRConfig } from "swr"
+import Constants from '@/commons/environment';
 
 interface Iprops {
     showModalDelete: boolean
@@ -25,7 +26,7 @@ const DeleteModal = (props: Iprops) => {
     }, [category])
 
     const handleSubmit = async () => {
-        const res = await fetch(`http://localhost:8081/v1/category/${categoryId}`, {
+        const res = await fetch(Constants.URL_V1+`/category/${categoryId}`, {
             method: 'DELETE',
             headers: {
                 'Accept': 'application/json, text/plain, */*',
@@ -37,7 +38,7 @@ const DeleteModal = (props: Iprops) => {
         if (data) {
             toast.success('Delete succeed')
             handleCloseModal()
-            mutate('http://localhost:8081/v1/category')
+            mutate(Constants.URL_V1+'/category')
         }
     }
 

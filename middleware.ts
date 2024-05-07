@@ -10,14 +10,23 @@ export function middleware(req: NextRequest){
     const token: string = req.cookies.get("token")?.value as string;
     try{
         const decoded: any = jwtDecode(token);
+        
+        const currentDate = Math.floor(Date.now() / 1000);
+        if(decoded.exp <= currentDate){
+            return NextResponse.redirect(new URL("/login", req.url), {
+                headers: {
+                    "Set-Cookie": `token=; Max-Age=0; Path=/; HttpOnly`
+                }
+            });
+        }
 
         if(decoded.role === "admin"){
             return NextResponse.next();
         }
     }catch(err){
         console.log(`Error: ${err}`);
+        return NextResponse.redirect(new URL("/login", req.url));
     }
-    return NextResponse.redirect(new URL("/login", req.url));
 }
 
 export const config = {

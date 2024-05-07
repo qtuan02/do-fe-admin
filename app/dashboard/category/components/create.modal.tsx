@@ -4,6 +4,7 @@ import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import { toast } from 'react-toastify';
 import { useSWRConfig } from "swr"
+import Constants from '@/commons/environment';
 
 interface Iprops {
     showModalCreate: boolean
@@ -15,7 +16,7 @@ const CreateModal = (props: Iprops) => {
     const { mutate } = useSWRConfig()
 
     const handleSubmit = async () => {
-        const res = await fetch('http://localhost:8081/v1/category', {
+        const res = await fetch(Constants.URL_V1+'/category', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json, text/plain, */*',
@@ -27,7 +28,7 @@ const CreateModal = (props: Iprops) => {
         if (data) {
             toast.success('Create succeed')
             handleCloseModal()
-            mutate('http://localhost:8081/v1/category')
+            mutate(Constants.URL_V1+'/category')
         }
     }
 

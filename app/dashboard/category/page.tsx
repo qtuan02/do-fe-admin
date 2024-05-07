@@ -2,6 +2,7 @@
 import NavbarLayout from "@/components/dashboard/layout"
 import CatagoriesList from "./components/catagoriesList"
 import useSWR from "swr";
+import Constants from "@/commons/environment";
 
 const Category = () => {
 
@@ -11,7 +12,7 @@ const Category = () => {
     };
 
     const { data, error, isLoading } = useSWR(
-        'http://localhost:8081/v1/category',
+        Constants.URL_V1 + '/category',
         fetcher,
         {
             revalidateIfStale: false,
