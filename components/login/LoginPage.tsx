@@ -2,8 +2,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Constants from "@/commons/environment";
+import Loading from "../loading/loading";
 
 export default function LoginPage() {
+    const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
     const [formData, setFormData] = useState({
         account: "",
@@ -16,6 +18,8 @@ export default function LoginPage() {
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
+        setError("");
+        setIsLoading(true);
 
         const { account, password } = formData;
         
@@ -40,15 +44,14 @@ export default function LoginPage() {
             if(response.ok){
                 const token = data.data.token;
                 document.cookie = await `token=${token}; path=/`;
-                if(document.cookie){
-                    router.push("/dashboard");
-                }
             }else{
                 setError(message);
             }
         }catch(error){
             setError("Đã có lỗi xảy ra!")
         }
+        setIsLoading(false);
+        router.push("/dashboard");
     }
 
    return <div className="grid place-items-center h-screen">
@@ -63,5 +66,6 @@ export default function LoginPage() {
             <button className="bg-green-600 text-white font-bold cursor-pointer px-6 py-2 mt-4">Đăng nhập</button>
         </form>
     </div>
+    {isLoading && <Loading />}
    </div> 
 }
