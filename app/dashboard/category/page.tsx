@@ -1,8 +1,9 @@
 'use client'
 import NavbarLayout from "@/components/dashboard/layout"
-import CatagoriesList from "./components/catagoriesList"
 import useSWR from "swr";
 import Constants from "@/commons/environment";
+import CatagoriesList from "@/components/category/CategoryList";
+import Loading from "@/components/loading/loading";
 
 const Category = () => {
 
@@ -32,9 +33,7 @@ const Category = () => {
 
     if (isLoading)
         return (
-            <NavbarLayout>
-                <div>loading...</div>
-            </NavbarLayout >
+            <Loading />
         )
     return (
         <NavbarLayout>

@@ -5,6 +5,7 @@ import Form from 'react-bootstrap/Form';
 import { toast } from 'react-toastify';
 import { useSWRConfig } from "swr"
 import Constants from '@/commons/environment';
+import Cookies from 'js-cookie';
 
 interface Iprops {
     showModalDelete: boolean
@@ -26,18 +27,23 @@ const DeleteModal = (props: Iprops) => {
     }, [category])
 
     const handleSubmit = async () => {
-        const res = await fetch(Constants.URL_V1+`/category/${categoryId}`, {
+        const token = await Cookies.get("token");
+        const response = await fetch(Constants.URL_V1+`/category/${categoryId}`, {
             method: 'DELETE',
             headers: {
                 'Accept': 'application/json, text/plain, */*',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ category_name: categoryName })
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
         })
-        const data = await res.json();
-        if (data) {
-            toast.success('Delete succeed')
+        const data = await response.json();
+        if(response.ok){
+            toast.success(data.message);
             handleCloseModal()
+            mutate(Constants.URL_V1+'/category')
+        }else{
+            toast.error(data.message);
+            handleCloseModal();
             mutate(Constants.URL_V1+'/category')
         }
     }

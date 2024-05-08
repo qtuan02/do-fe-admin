@@ -5,6 +5,7 @@ import Form from 'react-bootstrap/Form';
 import { toast } from 'react-toastify';
 import { useSWRConfig } from "swr"
 import Constants from '@/commons/environment';
+import Cookies from 'js-cookie';
 
 interface Iprops {
     showModalUpdate: boolean
@@ -27,18 +28,24 @@ const UpdateModal = (props: Iprops) => {
     }, [category])
 
     const handleSubmit = async () => {
-        const res = await fetch(Constants.URL_V1+`/category/${categoryId}`, {
+        const token = await Cookies.get("token");
+        const response = await fetch(Constants.URL_V1+`/category/${categoryId}`, {
             method: 'PUT',
             headers: {
                 'Accept': 'application/json, text/plain, */*',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({ category_name: categoryName })
         })
-        const data = await res.json();
-        if (data) {
-            toast.warning('Update succeed')
+        const data = await response.json();
+        if(response.ok){
+            toast.success(data.message);
             handleCloseModal()
+            mutate(Constants.URL_V1+'/category')
+        }else{
+            toast.error(data.message);
+            handleCloseModal();
             mutate(Constants.URL_V1+'/category')
         }
     }
@@ -74,7 +81,7 @@ const UpdateModal = (props: Iprops) => {
                     <Button variant="secondary" onClick={() => handleCloseModal()}>
                         Close
                     </Button>
-                    <Button variant="primary" onClick={() => handleSubmit()}>Save</Button>
+                    <Button variant="primary" onClick={() => handleSubmit()}>Edit</Button>
                 </Modal.Footer>
             </Modal>
         </>
