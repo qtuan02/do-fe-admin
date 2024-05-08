@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Logo from '@/public/assets/logo.png'
 import { Nav } from 'react-bootstrap';
-import { AppstoreOutlined, DashboardOutlined, ShoppingCartOutlined, TabletOutlined, UserOutlined } from '@ant-design/icons'
+import { AppstoreOutlined, BulbOutlined, DashboardOutlined, ShoppingCartOutlined, TabletOutlined, UserOutlined } from '@ant-design/icons'
 
 interface Props {
     children?: React.ReactNode;
@@ -28,6 +28,12 @@ const NavbarLayout = (props: Props) => {
                         <span className="flex items-center space-x-2">
                             <AppstoreOutlined style={{ fontSize: '24px' }} />
                             <span className="text-lg font-semibold">Category List</span>
+                        </span>
+                    </Link>
+                    <Link href="/dashboard/brand" className="px-6 py-3 flex items-center space-x-4 hover:bg-gray-200 rounded-md text-decoration-none text-dark">
+                        <span className="flex items-center space-x-2">
+                            <BulbOutlined style={{ fontSize: '24px' }} />
+                            <span className="text-lg font-semibold">Brand List</span>
                         </span>
                     </Link>
                     <Link href="/dashboard/product" className="px-6 py-3 flex items-center space-x-4 hover:bg-gray-200 rounded-md text-decoration-none text-dark">
