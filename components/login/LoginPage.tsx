@@ -51,7 +51,7 @@ export default function LoginPage() {
             setError("Đã có lỗi xảy ra!")
         }
         setIsLoading(false);
-        router.push("/dashboard");
+        window.location.replace('/dashboard');
     }
 
    return <div className="grid place-items-center h-screen">
