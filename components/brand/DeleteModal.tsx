@@ -1,39 +1,30 @@
 import Constants from "@/commons/environment";
-import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import Cookies from 'js-cookie';
 
 interface IProps {
-    showModalEdit: boolean;
-    setShowModalEdit: (status: boolean) => void;
+    showModalDelete: boolean;
+    setShowModalDelete: (status: boolean) => void;
     brandItem: IBrand | null;
     updateBrandList: () => void;
 }
 
-export default function BrandEditModal(props: IProps) {
-    const {showModalEdit, brandItem, setShowModalEdit, updateBrandList} = props;
-    const [brandName, setBrandName] = useState('');
-    
-    useEffect(() => {
-        if(brandItem){
-            setBrandName(brandItem.brand_name)
-        }
-    },[brandItem])
+export default function BrandDeleteModal(props: IProps) {
+    const {showModalDelete, brandItem, setShowModalDelete, updateBrandList} = props;
 
     const handleCloseModal = () => {
-        setShowModalEdit(false);
+        setShowModalDelete(false);
     };
     const handleSubmit = async () => {
         const token = await Cookies.get("token");
         const response = await fetch(Constants.URL_V1+`/brand/${brandItem?.brand_id}`, {
-            method: 'PUT',
+            method: 'DELETE',
             headers: {
                 'Accept': 'application/json, text/plain, */*',
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ brand_name: brandName })
+            }
         })
         const data = await response.json();
         if(response.ok){
@@ -44,36 +35,30 @@ export default function BrandEditModal(props: IProps) {
             toast.error(data.message);
             handleCloseModal();
             updateBrandList();
-
         }
     };
 
     return (
         <>
             <Modal
-                show={showModalEdit}
+                show={showModalDelete}
                 onHide={() => handleCloseModal()}
-                backdrop="static"
                 keyboard={false}
                 size='lg'
             >
                 <Modal.Header closeButton>
-                    <Modal.Title>Edit Brand</Modal.Title>
+                    <Modal.Title>WARNING</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
                         <Form.Group className="mb-3">
-                            <Form.Label>Brand name</Form.Label>
-                            <Form.Control type="text" placeholder="..."
-                                value={brandName}
-                                onChange={(e) => setBrandName(e.target.value)}
-                            />
+                            <Form.Label>Do you want to delete category {brandItem?.brand_name}</Form.Label>
                         </Form.Group>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => handleCloseModal()}>Close</Button>
-                    <Button variant="primary" onClick={() => handleSubmit()}>Edit</Button>
+                    <Button variant="danger" onClick={() => handleSubmit()}>Delete</Button>
                 </Modal.Footer>
             </Modal>
         </>

@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import BrandCreateModal from "./CreateModal";
 import Loading from "../loading/loading";
 import BrandEditModal from "./EditModal";
+import BrandDeleteModal from "./DeleteModal";
 
 
 export default function BrandListPage(){
@@ -15,6 +16,7 @@ export default function BrandListPage(){
     const [isLoading, setIsLoading] = useState(false);
 
     const [showModalCreate, setShowModalCreate] = useState<boolean>(false);
+    const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
     const [showModalEdit, setShowModalEdit] = useState<boolean>(false);
     
     useEffect(() => {
@@ -31,26 +33,6 @@ export default function BrandListPage(){
             console.error('Error fetching data:', error);
         }
         setIsLoading(false);
-    };
-
-    const handleDeleteBrand = async (brand_id: number) => {
-        const token = await Cookies.get("token");
-        const response = await fetch(Constants.URL_V1+`/brand/${brand_id}`, {
-            method: 'DELETE',
-            headers: {
-                'Accept': 'application/json, text/plain, */*',
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-        });
-        const data = await response.json();
-        if(response.ok){
-            toast.success(data.message);
-            fetchData();
-        }else{
-            toast.error(data.message);
-            fetchData();
-        }
     };
 
     return (
@@ -77,7 +59,10 @@ export default function BrandListPage(){
                                     setBrand(item)
                                     setShowModalEdit(true)
                                 }}>Edit</Button>
-                                <Button variant='danger' onClick={() => handleDeleteBrand(item.brand_id)}>Delete</Button>
+                                <Button variant='danger' onClick={() => {
+                                    setBrand(item)
+                                    setShowModalDelete(true)
+                                }}>Delete</Button>
                             </td>
                         </tr>
                     ))}
@@ -87,6 +72,12 @@ export default function BrandListPage(){
             <BrandCreateModal
                 showModalCreate={showModalCreate}
                 setShowModalCreate={setShowModalCreate}
+                updateBrandList={fetchData}
+            />
+            <BrandDeleteModal
+                showModalDelete={showModalDelete}
+                setShowModalDelete={setShowModalDelete}
+                brandItem={brand}
                 updateBrandList={fetchData}
             />
             <BrandEditModal

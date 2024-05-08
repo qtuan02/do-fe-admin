@@ -1,10 +1,9 @@
 import Table from 'react-bootstrap/Table';
-import Category from '../page';
 import { Button } from 'react-bootstrap';
 import { useState } from 'react';
-import CreateModal from './create.modal';
-import UpdateModal from './update.modal';
-import DeleteModal from './delete.modal';
+import CreateModal from './CreateModal';
+import DeleteModal from './DeleteModal';
+import UpdateModal from './EditModal';
 
 interface IProps {
     categories: ICategory[]
