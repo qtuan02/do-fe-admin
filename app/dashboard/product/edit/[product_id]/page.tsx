@@ -1,3 +1,4 @@
+"use client"
 import Layout from "@/components/dashboard/layout";
 import EditProductForm from "@/components/product/EditProductForm";
 
