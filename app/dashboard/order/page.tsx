@@ -1,11 +1,11 @@
 'use client'
 import Layout from "@/components/dashboard/layout"
+import OrderListPage from "@/components/order/OrderList"
 
-const Order = () => {
+export default function Order() {
     return (
         <Layout>
-            Order page
+            <OrderListPage />
         </Layout>
     )
 }
-export default Order

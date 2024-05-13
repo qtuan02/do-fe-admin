@@ -7,7 +7,7 @@ import Cookies from 'js-cookie';
 interface IProps {
     showModalEdit: boolean;
     setShowModalEdit: (status: boolean) => void;
-    brandItem: IBrand | null;
+    brandItem: any | null;
     updateBrandList: () => void;
 }
 
@@ -44,7 +44,6 @@ export default function BrandEditModal(props: IProps) {
             toast.error(data.message);
             handleCloseModal();
             updateBrandList();
-
         }
     };
 

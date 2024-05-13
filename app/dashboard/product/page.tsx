@@ -1,11 +1,10 @@
-'use client'
 import Layout from "@/components/dashboard/layout"
+import ProductListPage from "@/components/product/ProductList"
 
-const Product = () => {
+export default function Product() {
     return (
         <Layout>
-            Product page
+            <ProductListPage  />
         </Layout>
     )
 }
-export default Product

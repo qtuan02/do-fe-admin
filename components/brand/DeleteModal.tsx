@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 interface IProps {
     showModalDelete: boolean;
     setShowModalDelete: (status: boolean) => void;
-    brandItem: IBrand | null;
+    brandItem: any | null;
     updateBrandList: () => void;
 }
 

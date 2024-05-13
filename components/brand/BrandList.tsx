@@ -1,18 +1,17 @@
 "use client"
-import Constants from "@/commons/environment";
 import { useEffect, useState } from "react";
 import { Button, Table } from "react-bootstrap";
-import Cookies from 'js-cookie';
-import { toast } from "react-toastify";
 import BrandCreateModal from "./CreateModal";
 import Loading from "../loading/loading";
 import BrandEditModal from "./EditModal";
 import BrandDeleteModal from "./DeleteModal";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import fetchApi from "@/commons/api";
 
 
 export default function BrandListPage(){
-    const [brands, setBrands] = useState<IBrand[]>([]);
-    const [brand, setBrand] = useState<IBrand | null>(null);
+    const [brands, setBrands] = useState<any []>([]);
+    const [brand, setBrand] = useState<any | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
     const [showModalCreate, setShowModalCreate] = useState<boolean>(false);
@@ -22,16 +21,11 @@ export default function BrandListPage(){
     useEffect(() => {
         fetchData();
     }, []);
-
+    
     const fetchData = async () => {
         setIsLoading(true);
-        try {
-            const response = await fetch(Constants.URL_V1+"/brand");
-            const data = await response.json();
-            setBrands(data.data);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
+        const data = await fetchApi.brands();
+        setBrands(data.data);
         setIsLoading(false);
     };
 
@@ -58,11 +52,11 @@ export default function BrandListPage(){
                                 <Button variant='warning' className='mr-3' onClick={() => {
                                     setBrand(item)
                                     setShowModalEdit(true)
-                                }}>Edit</Button>
+                                }}><EditOutlined /></Button>
                                 <Button variant='danger' onClick={() => {
                                     setBrand(item)
                                     setShowModalDelete(true)
-                                }}>Delete</Button>
+                                }}><DeleteOutlined /></Button>
                             </td>
                         </tr>
                     ))}

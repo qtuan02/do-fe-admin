@@ -1,8 +1,8 @@
+"use client"
 import Link from 'next/link';
-import Image from 'next/image';
-import Logo from '@/public/assets/logo.png'
-import { Nav } from 'react-bootstrap';
-import { AppstoreOutlined, BulbOutlined, DashboardOutlined, ShoppingCartOutlined, TabletOutlined, UserOutlined } from '@ant-design/icons'
+import { Button, Nav } from 'react-bootstrap';
+import { AppstoreOutlined, BulbOutlined, DashboardOutlined, ExportOutlined, PlusOutlined, ShoppingCartOutlined, TabletOutlined, UserOutlined } from '@ant-design/icons'
+import Cookies from 'js-cookie';
 
 interface Props {
     children?: React.ReactNode;
@@ -10,6 +10,11 @@ interface Props {
 
 const NavbarLayout = (props: Props) => {
     const { children } = props;
+
+    const handleLogout = async () => {
+        Cookies.remove('token');
+        window.location.replace('/login');
+    };
 
     return (
         <div className="min-h-screen flex flex-row bg-gray-100">
@@ -54,6 +59,21 @@ const NavbarLayout = (props: Props) => {
                             <span className="text-lg font-semibold">Orders</span>
                         </span>
                     </Link>
+                    <hr />
+                    <Link href="/dashboard/product/add" className="px-6 py-3 flex items-center space-x-4 hover:bg-gray-200 rounded-md text-decoration-none text-dark">
+                        <span className="flex items-center space-x-2">
+                            <PlusOutlined  style={{ fontSize: '24px' }} />
+                            <span className="text-lg font-semibold">Add Product</span>
+                        </span>
+                    </Link>
+                    <hr />
+                    <br />
+                    <Button variant='danger' className="px-6 py-3 flex items-center space-x-4 hover:bg-gray-200 text-decoration-none text-dark" onClick={() => handleLogout()}>
+                        <span className="flex items-center space-x-2">
+                            <ExportOutlined  style={{ fontSize: '24px' }} />
+                            <span className="text-lg font-semibold">LOG OUT</span>
+                        </span>
+                    </Button>
                 </Nav>
             </div>
             <main className="flex-grow m-5">{children}</main>

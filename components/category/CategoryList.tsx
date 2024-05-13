@@ -4,6 +4,7 @@ import { useState } from 'react';
 import CreateModal from './CreateModal';
 import DeleteModal from './DeleteModal';
 import UpdateModal from './EditModal';
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 
 interface IProps {
     categories: ICategory[]
@@ -15,10 +16,6 @@ const CatagoriesList = (props: IProps) => {
     const [showModalCreate, setShowModalCreate] = useState<boolean>(false);
     const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
     const [showModalUpdate, setShowModalUpdate] = useState<boolean>(false);
-
-    const handleDelete = (id: number) => {
-
-    }
 
     return (
         <>
@@ -47,13 +44,13 @@ const CatagoriesList = (props: IProps) => {
                                             setCategory(item)
                                             setShowModalUpdate(true)
                                         }}
-                                    >Edit</Button>
+                                    ><EditOutlined /></Button>
                                     <Button variant='danger'
                                         onClick={() => {
                                             setCategory(item)
                                             setShowModalDelete(true)
                                         }}
-                                    >Delete</Button>
+                                    ><DeleteOutlined /></Button>
                                 </td>
                             </tr>
                         )
