@@ -34,7 +34,7 @@ export default function DashboardPage() {
                 }}
             );
             const data = await response.json();
-            setCustomersCount(data.data.length);
+            setCustomersCount(data.message);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -47,13 +47,13 @@ export default function DashboardPage() {
                 'Authorization': `Bearer ${token}`
             }});
             const data = await response.json();
-            setOrdersCount(data.data.length);
+            setOrdersCount(data.message);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
-        setCategoriesCount(dataCategories.data.length);
-        setBrandsCount(dataBrands.data.length);
-        setProductsCount(dataProducts.data.length);
+        setCategoriesCount(dataCategories.message);
+        setBrandsCount(dataBrands.message);
+        setProductsCount(dataProducts.message);
         setIsLoading(false);
     };
 

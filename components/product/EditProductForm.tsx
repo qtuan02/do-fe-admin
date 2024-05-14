@@ -43,9 +43,9 @@ export default function EditProductForm(data: any) {
     }, []);
     
     const fetchData = async () => {
-        const dataCategoryies = await fetchApi.categories();
+        const dataCategoryies = await fetchApi.allCategories();
         setCategories(dataCategoryies.data);
-        const dataBrands = await fetchApi.brands();
+        const dataBrands = await fetchApi.allBrands();
         setBrands(dataBrands.data);
         const dataProduct = await fetchApi.products(null, data.product_id);
         if (dataProduct.data[0]) {

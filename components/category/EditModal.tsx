@@ -11,14 +11,13 @@ interface Iprops {
     showModalUpdate: boolean
     setShowModalUpdate: (v: boolean) => void
     category: ICategory | null
-    setCategory: (value: ICategory | null) => void
+    updateCategoryList: () => void
 }
 const UpdateModal = (props: Iprops) => {
-    const { showModalUpdate, setShowModalUpdate, category, setCategory } = props
+    const { showModalUpdate, setShowModalUpdate, category, updateCategoryList } = props
 
     const [categoryId, setCategoryId] = useState<number>(0)
     const [categoryName, setCategoryName] = useState<string>('')
-    const { mutate } = useSWRConfig()
 
     useEffect(() => {
         if (category && category.category_id) {
@@ -42,11 +41,11 @@ const UpdateModal = (props: Iprops) => {
         if(response.ok){
             toast.success(data.message);
             handleCloseModal()
-            mutate(Constants.URL_V1+'/category')
+            updateCategoryList();
         }else{
             toast.error(data.message);
             handleCloseModal();
-            mutate(Constants.URL_V1+'/category')
+            updateCategoryList();
         }
     }
 

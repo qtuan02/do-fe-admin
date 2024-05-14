@@ -1,5 +1,5 @@
 "use client"
-import { Button, Col, Form, Row } from "react-bootstrap";
+import { Button, Card, Col, Form, Row } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { EditorState, convertToRaw } from 'draft-js';
@@ -10,6 +10,7 @@ import draftToHtml from "draftjs-to-html";
 import Cookies from 'js-cookie';
 import Constants from "@/commons/environment";
 import Loading from "../loading/loading";
+import Link from 'next/link';
 
 const DynamicEditor = dynamic(
     () => import('react-draft-wysiwyg').then(mod => mod.Editor),
@@ -42,9 +43,9 @@ export default function CreateProductForm() {
     }, []);
     
     const fetchData = async () => {
-        const dataCategoryies = await fetchApi.categories();
+        const dataCategoryies = await fetchApi.allCategories();
         setCategories(dataCategoryies.data);
-        const dataBrands = await fetchApi.brands();
+        const dataBrands = await fetchApi.allBrands();
         setBrands(dataBrands.data);
     }
     
@@ -139,6 +140,44 @@ export default function CreateProductForm() {
                 <Button variant='success' onClick={handleSubmit}>CREATE</Button>
             </div>
             <Form>
+            <Row className="mb-4">
+                    <Col>
+                        <Form.Group className="mb-2">
+                            <Form.Label>1.</Form.Label>
+                            <Link href={formData.image_1} target="_blank"><Card.Img style={{ maxWidth: '50px', maxHeight: '50px' }} src={formData.image_1} /></Link>
+                        </Form.Group>
+                    </Col>
+                    <Col>
+                        <Form.Group className="mb-2">
+                            <Form.Label>2.</Form.Label>
+                            <Link href={formData.image_1} target="_blank"><Card.Img style={{ maxWidth: '50px', maxHeight: '50px' }} src={formData.image_2} /></Link>
+                        </Form.Group>
+                    </Col>
+                    <Col>
+                        <Form.Group className="mb-2">
+                            <Form.Label>3.</Form.Label>
+                            <Link href={formData.image_1} target="_blank"><Card.Img style={{ maxWidth: '50px', maxHeight: '50px' }} src={formData.image_3} /></Link>
+                        </Form.Group>
+                    </Col>
+                    <Col>
+                        <Form.Group className="mb-2">
+                            <Form.Label>4.</Form.Label>
+                            <Link href={formData.image_1} target="_blank"><Card.Img style={{ maxWidth: '50px', maxHeight: '50px' }} src={formData.image_4} /></Link>
+                        </Form.Group>
+                    </Col>
+                    <Col>
+                        <Form.Group className="mb-2">
+                            <Form.Label>5.</Form.Label>
+                            <Link href={formData.image_1} target="_blank"><Card.Img style={{ maxWidth: '50px', maxHeight: '50px' }} src={formData.image_5} /></Link>
+                        </Form.Group>
+                    </Col>
+                    <Col>
+                        <Form.Group className="mb-2">
+                            <Form.Label>6.</Form.Label>
+                            <Link href={formData.image_1} target="_blank"><Card.Img style={{ maxWidth: '50px', maxHeight: '50px' }} src={formData.image_6} /></Link>
+                        </Form.Group>
+                    </Col>
+                </Row>
                 <Row>
                     <Col>
                         <Form.Group className="mb-3">

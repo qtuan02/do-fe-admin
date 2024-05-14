@@ -3,7 +3,6 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import { toast } from 'react-toastify';
-import { useSWRConfig } from "swr"
 import Constants from '@/commons/environment';
 import Cookies from 'js-cookie';
 
@@ -11,11 +10,11 @@ import Cookies from 'js-cookie';
 interface Iprops {
     showModalCreate: boolean
     setShowModalCreate: (v: boolean) => void
+    updateCategoryList: () => void
 }
 const CreateModal = (props: Iprops) => {
-    const { showModalCreate, setShowModalCreate } = props
+    const { showModalCreate, setShowModalCreate, updateCategoryList } = props
     const [categoryName, setCategoryName] = useState<string>('')
-    const { mutate } = useSWRConfig()
 
     const handleSubmit = async () => {
         const token = await Cookies.get("token");
@@ -32,7 +31,7 @@ const CreateModal = (props: Iprops) => {
         if(response.ok){
             toast.success(data.message);
             handleCloseModal()
-            mutate(Constants.URL_V1+'/category')
+            updateCategoryList();
         }else{
             toast.error(data.message);
             handleCloseModal();

@@ -1,9 +1,9 @@
 "use client"
 import Constants from "@/commons/environment";
-import { useEffect, useState } from "react";
-import { Button, ButtonGroup, Card, Form, Table } from "react-bootstrap";
+import { useEffect, useRef, useState } from "react";
+import { Button, ButtonGroup, Card, Form, Pagination, Table } from "react-bootstrap";
 import Loading from "../loading/loading";
-import { EditOutlined, EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
+import { EditOutlined, EyeFilled, EyeInvisibleFilled, UndoOutlined } from "@ant-design/icons";
 import Cookies from 'js-cookie';
 import { toast } from "react-toastify";
 import fetchApi from "@/commons/api";
@@ -12,17 +12,36 @@ import { useRouter } from "next/navigation";
 export default function ProductListPage(){
     const router = useRouter();
     const [products, setProducts] = useState<any []>([]);
+    const [categories, setCategories] = useState<any []>([]);
+    const [brands, setBrands] = useState<any []>([]);
+    const [status, setStatus] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [selectedBrand, setSelectedBrand] = useState('');
+    
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [totalPages, setTotalPages] = useState<number>(1);
+    const [searchTerm, setSearchTerm] = useState<string>("");
+    const [chooseCategory, setChooseCategory] = useState('');
+    const [chooseBrand, setChooseBrand] = useState('');
+
+    const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [currentPage, status, searchTerm, chooseCategory, chooseBrand]);
     
-    const fetchData = async (status: any = null) => {
+    const fetchData = async () => {
         setIsLoading(true);
-        const data = await fetchApi.products(status);
-        setProducts(data.data);
+        const data = await fetchApi.products(status, null, currentPage, searchTerm, chooseCategory, chooseBrand);
+        const dataCategoryies = await fetchApi.allCategories();
+        const dataBrands = await fetchApi.allBrands();
         setIsLoading(false);
+        setCategories(dataCategoryies.data);
+        setBrands(dataBrands.data);
+        setProducts(data.data);
+        setTotalPages(Math.ceil(data.message / 5));
     };
 
     const handleChangeStatus = async (product_id: any, status: any) => {
@@ -57,16 +76,76 @@ export default function ProductListPage(){
         }
         return false;
     }
+    
+    const handlePageChange = (pageNumber: number) => {
+        setCurrentPage(pageNumber);
+    };
+    
+    const handleSubmit = () => {
+        setCurrentPage(1)
+        if (inputRef.current) {
+            setCurrentPage(1);
+            setSearchTerm(inputRef.current.value);
+        }
+        setChooseCategory(selectedCategory);
+        setChooseBrand(selectedBrand);
+    }
 
     return (
         <>
             <div className="mb-3 d-flex justify-between ">
                 <h3>Products</h3>
                 <ButtonGroup aria-label="Basic example">
-                    <Button variant="danger" className="mr-1" onClick={() => fetchData("false")}><EyeInvisibleFilled /></Button>
-                    <Button variant="warning" onClick={() => fetchData("true")}><EyeFilled /></Button>
+                    <Button variant="danger" className="mr-1" onClick={() => {
+                        setStatus("false")
+                        setCurrentPage(1)
+                        setSearchTerm("")
+                        setChooseBrand("")
+                    }}><EyeInvisibleFilled /></Button>
+                    <Button variant="warning" className="mr-1" onClick={() => {
+                        setStatus("true");
+                        setCurrentPage(1)
+                        setSearchTerm("")
+                        setChooseBrand("")
+                    }}><EyeFilled /></Button>
+                    <Button variant="primary" onClick={() => {
+                        setStatus("")
+                        setCurrentPage(1)
+                        setSearchTerm("")
+                        setChooseBrand("")
+                    }}><UndoOutlined /></Button>
                 </ButtonGroup>
             </div>
+
+            <Form.Group className="mb-4 d-flex">
+                <Form.Control
+                    type="text"
+                    placeholder="Filter by name..."
+                    className='mr-3'
+                    style={{ width: '300px' }}
+                    ref={inputRef}
+                />
+                <Form.Select style={{ width: '150px' }} className="mr-3"
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    value={selectedCategory}
+                >
+                    <option value="">--Categories</option>
+                    {categories.map((category) => (
+                        <option key={category.category_id} value={category.category_id}>{category.category_name}</option>
+                    ))}
+                </Form.Select>
+                <Form.Select  style={{ width: '120px' }} className="mr-3"
+                    onChange={(e) => setSelectedBrand(e.target.value)}
+                    value={selectedBrand}
+                >
+                    <option value="">--Brands</option>
+                    {brands.map((brand) => (
+                        <option key={brand.brand_id} value={brand.brand_id}>{brand.brand_name}</option>
+                    ))}
+                </Form.Select>
+                <Button variant="primary" onClick={() => handleSubmit()}>Apply</Button>
+            </Form.Group>
+
             <Table striped bordered hover>
                 <thead>
                     <tr>
@@ -103,6 +182,21 @@ export default function ProductListPage(){
                     ))}
                 </tbody>
             </Table>
+            <Pagination className="justify-end">
+                <Pagination.First onClick={() => handlePageChange(1)} disabled={currentPage === 1} />
+                <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
+                    {[...Array(totalPages).keys()].map(page =>
+                        <Pagination.Item
+                            key={page + 1}
+                            active={page + 1 === currentPage}
+                            onClick={() => handlePageChange(page + 1)}
+                        >
+                        {page + 1}
+                        </Pagination.Item>
+                    )}
+                <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
+                <Pagination.Last onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages} />
+            </Pagination>
             {isLoading && <Loading />}
         </>
     )

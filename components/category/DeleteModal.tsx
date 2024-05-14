@@ -3,7 +3,6 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import { toast } from 'react-toastify';
-import { useSWRConfig } from "swr"
 import Constants from '@/commons/environment';
 import Cookies from 'js-cookie';
 
@@ -11,13 +10,12 @@ interface Iprops {
     showModalDelete: boolean
     setShowModalDelete: (v: boolean) => void
     category: ICategory | null
-    setCategory: (value: ICategory | null) => void
+    updateCategoryList: () => void
 }
 const DeleteModal = (props: Iprops) => {
-    const { showModalDelete, setShowModalDelete, category, setCategory } = props
+    const { showModalDelete, setShowModalDelete, category, updateCategoryList } = props
     const [categoryId, setCategoryId] = useState<number>(0)
     const [categoryName, setCategoryName] = useState<string>('')
-    const { mutate } = useSWRConfig()
 
     useEffect(() => {
         if (category && category.category_id) {
@@ -39,12 +37,12 @@ const DeleteModal = (props: Iprops) => {
         const data = await response.json();
         if(response.ok){
             toast.success(data.message);
-            handleCloseModal()
-            mutate(Constants.URL_V1+'/category')
+            handleCloseModal();
+            updateCategoryList();
         }else{
             toast.error(data.message);
             handleCloseModal();
-            mutate(Constants.URL_V1+'/category')
+            updateCategoryList();
         }
     }
 
