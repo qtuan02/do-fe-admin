@@ -28,7 +28,8 @@ body {
 }
 
 .editor-class {
-    height: 300px !important;
+    height: 400px !important;
     background-color: #fff;
     padding: 1rem;
+    border: .5px #bcb8b8 solid;
 }

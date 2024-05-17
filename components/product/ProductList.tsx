@@ -25,23 +25,25 @@ export default function ProductListPage(){
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [chooseCategory, setChooseCategory] = useState('');
     const [chooseBrand, setChooseBrand] = useState('');
+    const [limit, setLimit] = useState<number>(5);
+    
 
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         fetchData();
-    }, [currentPage, status, searchTerm, chooseCategory, chooseBrand]);
+    }, [currentPage, status, searchTerm, chooseCategory, chooseBrand, limit]);
     
     const fetchData = async () => {
         setIsLoading(true);
-        const data = await fetchApi.products(status, null, currentPage, searchTerm, chooseCategory, chooseBrand);
+        const data = await fetchApi.products(status, null, currentPage, searchTerm, chooseCategory, chooseBrand, limit);
         const dataCategoryies = await fetchApi.allCategories();
         const dataBrands = await fetchApi.allBrands();
         setIsLoading(false);
         setCategories(dataCategoryies.data);
         setBrands(dataBrands.data);
         setProducts(data.data);
-        setTotalPages(Math.ceil(data.message / 5));
+        setTotalPages(Math.ceil(data.message / limit));
     };
 
     const handleChangeStatus = async (product_id: any, status: any) => {
@@ -91,6 +93,56 @@ export default function ProductListPage(){
         setChooseBrand(selectedBrand);
     }
 
+    const renderPaginationItems = () => {
+        const pageItems = [];
+        const pageRange = 2;
+        const ellipsis = <Pagination.Ellipsis />;
+        
+        if (totalPages <= 10) {
+            for (let page = 1; page <= totalPages; page++) {
+                pageItems.push(
+                    <Pagination.Item
+                        key={page}
+                        active={page === currentPage}
+                        onClick={() => handlePageChange(page)}
+                    >
+                        {page}
+                    </Pagination.Item>
+                );
+            }
+        } else {
+            const startPage = Math.max(1, currentPage - pageRange);
+            const endPage = Math.min(totalPages, currentPage + pageRange);
+            
+            if (startPage > 2) {
+                pageItems.push(ellipsis);
+            }
+
+            for (let page = startPage; page <= endPage; page++) {
+                pageItems.push(
+                    <Pagination.Item
+                        key={page}
+                        active={page === currentPage}
+                        onClick={() => handlePageChange(page)}
+                    >
+                        {page}
+                    </Pagination.Item>
+                );
+            }
+
+            if (endPage < totalPages) {
+                pageItems.push(ellipsis);
+            }
+        }
+
+        return pageItems;
+    };
+
+    const handleLimitChange = (e: any) => {
+        setLimit(Number(e.target.value));
+        setCurrentPage(1);
+    };
+
     return (
         <>
             <div className="mb-3 d-flex justify-between ">
@@ -113,6 +165,7 @@ export default function ProductListPage(){
                         setCurrentPage(1)
                         setSearchTerm("")
                         setChooseBrand("")
+                        setChooseCategory("")
                     }}><UndoOutlined /></Button>
                 </ButtonGroup>
             </div>
@@ -182,21 +235,21 @@ export default function ProductListPage(){
                     ))}
                 </tbody>
             </Table>
-            <Pagination className="justify-end">
-                <Pagination.First onClick={() => handlePageChange(1)} disabled={currentPage === 1} />
-                <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
-                    {[...Array(totalPages).keys()].map(page =>
-                        <Pagination.Item
-                            key={page + 1}
-                            active={page + 1 === currentPage}
-                            onClick={() => handlePageChange(page + 1)}
-                        >
-                        {page + 1}
-                        </Pagination.Item>
-                    )}
-                <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
-                <Pagination.Last onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages} />
-            </Pagination>
+            <div className="flex justify-between items-center">
+                <Form.Select style={{ width: '70px' }} value={limit} onChange={handleLimitChange}>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                </Form.Select>
+                <div className="flex-grow" />
+                <Pagination className="m-0">
+                    <Pagination.First onClick={() => handlePageChange(1)} disabled={currentPage === 1} />
+                    <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
+                    {renderPaginationItems()}
+                    <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
+                    <Pagination.Last onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages} />
+                </Pagination>
+            </div>
             {isLoading && <Loading />}
         </>
     )

@@ -19,9 +19,9 @@ const fetchApi = {
             return [];
         }
     },
-    products: async (status: any = null, product_id: any = null, page: number = 1, name: string = '', category_id: string = '', brand_id: string = '') => {
+    products: async (status: any = null, product_id: any = null, page: number = 1, name: string = '', category_id: string = '', brand_id: string = '', limit: number = 5) => {
         try {
-            let url = Constants.URL_V1+`/product/page?page=${page}&product_name=${name}&category_id=${category_id}&brand_id=${brand_id}`;
+            let url = Constants.URL_V1+`/product/page?page=${page}&product_name=${name}&category_id=${category_id}&brand_id=${brand_id}&limit=${limit}`;
             if(status !== null){
                 url += `&status=${status}`
             }

@@ -269,12 +269,15 @@ export default function CreateProductForm() {
                         </Form.Group>
                     </Col>
                 </Row>
-                <Form.Group controlId="description">
+                <Form.Group controlId="description" className="editor-container">
                     <Form.Label>Description</Form.Label>
-                    <DynamicEditor
-                        editorState={editorState}
-                        onEditorStateChange={handleEditorStateChange}
-                        editorClassName="editor-class"/>
+                    <div className="editor-container">
+                        
+                    </div>
+                        <DynamicEditor
+                            editorState={editorState}
+                            onEditorStateChange={handleEditorStateChange}
+                            editorClassName="editor-class" />
                 </Form.Group>
             </Form>
             {isLoading && <Loading />}
