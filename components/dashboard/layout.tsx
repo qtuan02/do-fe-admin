@@ -1,9 +1,10 @@
 "use client";
 import Link from 'next/link';
-import { useState } from 'react';
-import { Button, Nav } from 'react-bootstrap';
+import { useEffect, useState } from 'react';
+import { Button, Dropdown, DropdownButton, Nav } from 'react-bootstrap';
 import { AppstoreOutlined, BulbOutlined, DashboardOutlined, ExportOutlined, PlusOutlined, ShoppingCartOutlined, TabletOutlined, UserOutlined, MenuOutlined, CloseOutlined } from '@ant-design/icons';
 import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
 
 interface Props {
     children?: React.ReactNode;
@@ -11,11 +12,22 @@ interface Props {
 
 export default function NavbarLayout(props: Props) {
     const { children } = props;
+    const [role, setRole] = useState("");
     const [isSidebarVisible, setSidebarVisible] = useState(true);
+
+    useEffect(() => {
+        getRole();
+    }, [role]);
 
     const handleLogout = async () => {
         Cookies.remove('token');
         window.location.replace('/login');
+    };
+
+    const getRole = async () => {
+        const token = await Cookies.get("token") as string;
+        const decoded: any = await jwtDecode(token);
+        setRole(decoded.role);
     };
 
     const toggleSidebar = () => {
@@ -24,13 +36,13 @@ export default function NavbarLayout(props: Props) {
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-100">
-            <header className="w-full bg-black shadow-md flex items-center justify-between p-4 text-white">
+            <header className="w-full bg-black shadow-md flex items-center justify-between p-4 text-white h-20">
                 <div className="text-2xl font-bold">ADMIN DASHBOARD</div>
                 <div className="flex items-center space-x-4">
-                    <Button variant='danger' onClick={handleLogout} className="flex items-center space-x-2">
-                        <ExportOutlined style={{ fontSize: '24px' }} />
-                        <span className="text-lg font-semibold">LOG OUT</span>
-                    </Button>
+                <DropdownButton variant='info' title={<span className="uppercase">{role}</span>}>
+                    <Dropdown.Item href='/dashboard/profile'>Profile</Dropdown.Item>
+                    <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
+                </DropdownButton>
                 </div>
             </header>
 
@@ -62,10 +74,10 @@ export default function NavbarLayout(props: Props) {
                                     <span className="text-lg font-semibold">Products</span>
                                 </span>
                             </Link>
-                            <Link href="/dashboard/customer" className="px-6 py-3 flex items-center space-x-4 hover:bg-gray-200 rounded-md text-decoration-none text-dark">
+                            <Link href="/dashboard/user" className="px-6 py-3 flex items-center space-x-4 hover:bg-gray-200 rounded-md text-decoration-none text-dark">
                                 <span className="flex items-center space-x-2">
                                     <UserOutlined style={{ fontSize: '24px' }} />
-                                    <span className="text-lg font-semibold">Customers</span>
+                                    <span className="text-lg font-semibold">Users</span>
                                 </span>
                             </Link>
                             <Link href="/dashboard/order" className="px-6 py-3 flex items-center space-x-4 hover:bg-gray-200 rounded-md text-decoration-none text-dark">

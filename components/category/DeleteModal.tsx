@@ -1,41 +1,24 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import { toast } from 'react-toastify';
-import Constants from '@/commons/environment';
 import Cookies from 'js-cookie';
+import fetchApi from '@/commons/api';
 
 interface Iprops {
     showModalDelete: boolean
     setShowModalDelete: (v: boolean) => void
-    category: ICategory | null
+    categoryItem: any | null
     updateCategoryList: () => void
 }
 const DeleteModal = (props: Iprops) => {
-    const { showModalDelete, setShowModalDelete, category, updateCategoryList } = props
-    const [categoryId, setCategoryId] = useState<number>(0)
-    const [categoryName, setCategoryName] = useState<string>('')
-
-    useEffect(() => {
-        if (category && category.category_id) {
-            setCategoryId(category.category_id)
-            setCategoryName(category.category_name)
-        }
-    }, [category])
+    const { showModalDelete, setShowModalDelete, categoryItem, updateCategoryList } = props
 
     const handleSubmit = async () => {
-        const token = await Cookies.get("token");
-        const response = await fetch(Constants.URL_V1+`/category/${categoryId}`, {
-            method: 'DELETE',
-            headers: {
-                'Accept': 'application/json, text/plain, */*',
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        const data = await response.json();
-        if(response.ok){
+        const token = await Cookies.get("token") as string;
+        const data = await fetchApi.deleteCategory(token, categoryItem.category_id);
+        if(data.status === 200){
             toast.success(data.message);
             handleCloseModal();
             updateCategoryList();
@@ -47,7 +30,6 @@ const DeleteModal = (props: Iprops) => {
     }
 
     const handleCloseModal = () => {
-        setCategoryName('')
         setShowModalDelete(false)
     }
     return (
@@ -64,7 +46,7 @@ const DeleteModal = (props: Iprops) => {
                 <Modal.Body>
                     <Form>
                         <Form.Group className="mb-3">
-                            <Form.Label>Do you want to delete category {categoryName}</Form.Label>
+                            <Form.Label>Do you want to delete category {categoryItem?.category_name}</Form.Label>
                         </Form.Group>
                     </Form>
                 </Modal.Body>

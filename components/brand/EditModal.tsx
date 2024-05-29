@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import Cookies from 'js-cookie';
+import fetchApi from "@/commons/api";
 
 interface IProps {
     showModalEdit: boolean;
@@ -25,18 +26,9 @@ export default function BrandEditModal(props: IProps) {
         setShowModalEdit(false);
     };
     const handleSubmit = async () => {
-        const token = await Cookies.get("token");
-        const response = await fetch(Constants.URL_V1+`/brand/${brandItem?.brand_id}`, {
-            method: 'PUT',
-            headers: {
-                'Accept': 'application/json, text/plain, */*',
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ brand_name: brandName })
-        })
-        const data = await response.json();
-        if(response.ok){
+        const token = await Cookies.get("token") as string;
+        const data = await fetchApi.updateBrand(token, brandItem.brand_id, brandName);
+        if(data.status === 200){
             toast.success(data.message);
             handleCloseModal();
             updateBrandList();

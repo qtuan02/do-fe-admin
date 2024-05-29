@@ -20,13 +20,13 @@ export function middleware(req: NextRequest){
             });
         }
 
-        if(decoded.role === "admin"){
+        if(decoded.role === "admin" || decoded.role === "staff"){
             return NextResponse.next();
         }
     }catch(err){
         console.log(`Error: ${err}`);
-        return NextResponse.redirect(new URL("/login", req.url));
     }
+    return NextResponse.redirect(new URL("/login", req.url));
 }
 
 export const config = {

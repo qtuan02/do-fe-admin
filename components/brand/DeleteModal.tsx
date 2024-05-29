@@ -2,6 +2,7 @@ import Constants from "@/commons/environment";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import Cookies from 'js-cookie';
+import fetchApi from "@/commons/api";
 
 interface IProps {
     showModalDelete: boolean;
@@ -17,17 +18,9 @@ export default function BrandDeleteModal(props: IProps) {
         setShowModalDelete(false);
     };
     const handleSubmit = async () => {
-        const token = await Cookies.get("token");
-        const response = await fetch(Constants.URL_V1+`/brand/${brandItem?.brand_id}`, {
-            method: 'DELETE',
-            headers: {
-                'Accept': 'application/json, text/plain, */*',
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        const data = await response.json();
-        if(response.ok){
+        const token = await Cookies.get("token") as string;
+        const data = await fetchApi.deleteBrand(token, brandItem.brand_id);
+        if(data.status === 200){
             toast.success(data.message);
             handleCloseModal();
             updateBrandList();

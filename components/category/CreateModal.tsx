@@ -3,8 +3,8 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import { toast } from 'react-toastify';
-import Constants from '@/commons/environment';
 import Cookies from 'js-cookie';
+import fetchApi from '@/commons/api';
 
 
 interface Iprops {
@@ -17,18 +17,9 @@ const CreateModal = (props: Iprops) => {
     const [categoryName, setCategoryName] = useState<string>('')
 
     const handleSubmit = async () => {
-        const token = await Cookies.get("token");
-        const response = await fetch(Constants.URL_V1+'/category', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json, text/plain, */*',
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ category_name: categoryName })
-        })
-        const data = await response.json();
-        if(response.ok){
+        const token = await Cookies.get("token") as string;
+        const data = await fetchApi.createCategory(token, categoryName);
+        if(data.status === 200){
             toast.success(data.message);
             handleCloseModal()
             updateCategoryList();

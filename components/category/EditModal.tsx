@@ -3,42 +3,29 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import { toast } from 'react-toastify';
-import { useSWRConfig } from "swr"
-import Constants from '@/commons/environment';
 import Cookies from 'js-cookie';
+import fetchApi from '@/commons/api';
 
 interface Iprops {
     showModalUpdate: boolean
     setShowModalUpdate: (v: boolean) => void
-    category: ICategory | null
+    categoryItem: any | null
     updateCategoryList: () => void
 }
 const UpdateModal = (props: Iprops) => {
-    const { showModalUpdate, setShowModalUpdate, category, updateCategoryList } = props
-
-    const [categoryId, setCategoryId] = useState<number>(0)
-    const [categoryName, setCategoryName] = useState<string>('')
+    const { showModalUpdate, setShowModalUpdate, categoryItem , updateCategoryList } = props;
+    const [categoryName, setCategoryName] = useState<string>('');
 
     useEffect(() => {
-        if (category && category.category_id) {
-            setCategoryId(category.category_id)
-            setCategoryName(category.category_name)
+        if(categoryItem){
+            setCategoryName(categoryItem.category_name)
         }
-    }, [category])
+    },[categoryItem])
 
     const handleSubmit = async () => {
-        const token = await Cookies.get("token");
-        const response = await fetch(Constants.URL_V1+`/category/${categoryId}`, {
-            method: 'PUT',
-            headers: {
-                'Accept': 'application/json, text/plain, */*',
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ category_name: categoryName })
-        })
-        const data = await response.json();
-        if(response.ok){
+        const token = await Cookies.get("token") as string;
+        const data = await fetchApi.updateCategory(token, categoryItem.category_id, categoryName);
+        if(data.status === 200){
             toast.success(data.message);
             handleCloseModal()
             updateCategoryList();

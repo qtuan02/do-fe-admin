@@ -1,5 +1,5 @@
 "use client"
-import { Button, Card, Col, Form, Row } from "react-bootstrap";
+import { Button, Card, Col, Form, Image, Row } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { ContentState, EditorState, convertFromHTML, convertToRaw } from 'draft-js';
@@ -8,34 +8,29 @@ import fetchApi from "@/commons/api";
 import { toast } from "react-toastify";
 import draftToHtml from "draftjs-to-html";
 import Cookies from 'js-cookie';
-import Constants from "@/commons/environment";
 import Loading from "../loading/loading";
-import Link from 'next/link';
+import { CloseOutlined } from "@ant-design/icons";
 
 const DynamicEditor = dynamic(
     () => import('react-draft-wysiwyg').then(mod => mod.Editor),
     { ssr: false }
 );
 
-export default function EditProductForm(data: any) {
+export default function EditProductForm(product: any) {
     const [isLoading, setIsLoading] = useState(false);
     const [editorState, setEditorState] = useState<EditorState>(EditorState.createEmpty());
     const [categories, setCategories] = useState<any []>([]);
     const [brands, setBrands] = useState<any []>([]);
     const [formData, setFormData] = useState({
-        image_1: "",
-        image_2: "",
-        image_3: "",
-        image_4: "",
-        image_5: "",
-        image_6: "",
+        image: "",
         product_name: "",
-        brand_id: 1,
-        category_id: 1,
+        brand_id: 0,
+        category_id: 0,
         price: 0,
         quantity: 0,
         description: "",
-        status: "true"
+        status: "",
+        images: []
     });
     
     useEffect(() => {
@@ -43,60 +38,81 @@ export default function EditProductForm(data: any) {
     }, []);
     
     const fetchData = async () => {
-        const dataCategoryies = await fetchApi.allCategories();
+        const dataCategoryies = await fetchApi.categories();
         setCategories(dataCategoryies.data);
-        const dataBrands = await fetchApi.allBrands();
+        const dataBrands = await fetchApi.brands();
         setBrands(dataBrands.data);
-        const dataProduct = await fetchApi.products(null, data.product_id);
-        if (dataProduct.data[0]) {
+        const dataProduct = await fetchApi.findOneProduct(product.product_id);
+        if (dataProduct.data) {
             setFormData({
                 ...formData,
-                image_1: dataProduct.data[0].image_1,
-                image_2: dataProduct.data[0].image_2,
-                image_3: dataProduct.data[0].image_3,
-                image_4: dataProduct.data[0].image_4,
-                image_5: dataProduct.data[0].image_5,
-                image_6: dataProduct.data[0].image_6,
-                product_name: dataProduct.data[0].product_name,
-                brand_id: dataProduct.data[0].brand.brand_id,
-                category_id: dataProduct.data[0].category.category_id,
-                price: dataProduct.data[0].price,
-                quantity: dataProduct.data[0].quantity,
-                description: dataProduct.data[0].description,
-                status: dataProduct.data[0].status
+                image: dataProduct.data.image,
+                product_name: dataProduct.data.product_name,
+                brand_id: dataProduct.data.brand.brand_id,
+                category_id: dataProduct.data.category.category_id,
+                price: dataProduct.data.price,
+                quantity: dataProduct.data.quantity,
+                description: dataProduct.data.description,
+                status: dataProduct.data.status,
+                images: dataProduct.data.images
             });
 
-            const contentBlocks: any = convertFromHTML(dataProduct.data[0].description);
+            const contentBlocks: any = convertFromHTML(dataProduct.data.description);
             const contentState = ContentState.createFromBlockArray(contentBlocks);
             const newEditorState = EditorState.createWithContent(contentState);
             setEditorState(newEditorState);
         }
     }
     
-    const handleFileChange = async (event: any, keyImage: string) => {  
+    const handleFileChange = async (event: any) => {  
         const selectedImage = event.target.files[0];
-        const formData = new FormData();
-        formData.append("image", selectedImage);
         
-        try {
-            const response = await fetch("https://nguyenkim-be.onrender.com/v3/uploads", {
-                method: "POST",
-                body: formData
-            });
-            
-            const data = await response.json();
-            if (response.ok) {
-                setFormData(key => ({
-                    ...key,
-                    [keyImage]: data.data.url
-                }));
-                toast.success(data.message);
-            } else {
-                toast.error(data.message);
+        const data = await fetchApi.upload(selectedImage);
+        if (data.status === 200) {
+            setFormData(key => ({
+                ...key,
+                image: data.data.url
+            }));
+            toast.success(data.message);
+        } else {
+            toast.error(data.message);
+        }
+    }
+
+    const handleAddFileDescription = async (event: any) => {
+        const token = await Cookies.get("token") as string;
+        const selectedImage = event.target.files[0];
+        setIsLoading(true);
+        const data = await fetchApi.upload(selectedImage);
+        if (data.status === 200) {
+            const addImage = await fetchApi.addImageDescription(token, data.data.url, product.product_id);
+            if(addImage.status === 200){
+                fetchData();
+                toast.success(addImage.message);
+            }else{
+                toast.error(addImage.message);
             }
-        } catch (error) {
-            console.error("Error uploading image:", error);
-            toast.error("Trang có lỗi xảy ra!");
+        } else {
+            toast.error(data.message);
+        }
+        setIsLoading(false);
+    }
+
+    const handleRemoveFileDescription = async (image_id: number, index: number) => {
+        const token = await Cookies.get("token") as string;
+        const data = await fetchApi.deleteImageDescription(token, image_id);
+        if(data.status === 200){
+            setFormData((key: any) => {
+                const updatedImages = [...key.images];
+                updatedImages.splice(index, 1);
+                return {
+                    ...key,
+                    images: updatedImages
+                };
+            });
+            toast.success(data.message);
+        }else{
+            toast.error(data.message);
         }
     }
     
@@ -137,22 +153,14 @@ export default function EditProductForm(data: any) {
     }
 
     const handleSubmit = async () => {
-        const token = await Cookies.get("token");
+        const token = await Cookies.get("token") as string;
         setIsLoading(true);
-        const response = await fetch(Constants.URL_V1+`/product/${data.product_id}`, {
-            method: 'PUT',
-            headers: {
-                'Accept': 'application/json, text/plain, */*',
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(formData)
-        })
-        const dataResponse = await response.json();
-        if(response.ok){
-            toast.success(dataResponse.message);
+        
+        const data = await fetchApi.updateProduct(token, product.product_id, formData);
+        if(data.status === 200){
+            toast.success(data.message);
         }else{
-            toast.error(dataResponse.message);
+            toast.error(data.message);
         }
         setIsLoading(false);
     }
@@ -164,81 +172,49 @@ export default function EditProductForm(data: any) {
                 <Button variant='success' onClick={handleSubmit}>EDIT</Button>
             </div>
             <Form>
-                <Row className="mb-4">
-                    <Col>
-                        <Form.Group className="mb-2">
-                            <Form.Label>1.</Form.Label>
-                            <Link href={formData.image_1} target="_blank"><Card.Img style={{ maxWidth: '50px', maxHeight: '50px' }} src={formData.image_1} /></Link>
-                        </Form.Group>
-                    </Col>
-                    <Col>
-                        <Form.Group className="mb-2">
-                            <Form.Label>2.</Form.Label>
-                            <Link href={formData.image_1} target="_blank"><Card.Img style={{ maxWidth: '50px', maxHeight: '50px' }} src={formData.image_2} /></Link>
-                        </Form.Group>
-                    </Col>
-                    <Col>
-                        <Form.Group className="mb-2">
-                            <Form.Label>3.</Form.Label>
-                            <Link href={formData.image_1} target="_blank"><Card.Img style={{ maxWidth: '50px', maxHeight: '50px' }} src={formData.image_3} /></Link>
-                        </Form.Group>
-                    </Col>
-                    <Col>
-                        <Form.Group className="mb-2">
-                            <Form.Label>4.</Form.Label>
-                            <Link href={formData.image_1} target="_blank"><Card.Img style={{ maxWidth: '50px', maxHeight: '50px' }} src={formData.image_4} /></Link>
-                        </Form.Group>
-                    </Col>
-                    <Col>
-                        <Form.Group className="mb-2">
-                            <Form.Label>5.</Form.Label>
-                            <Link href={formData.image_1} target="_blank"><Card.Img style={{ maxWidth: '50px', maxHeight: '50px' }} src={formData.image_5} /></Link>
-                        </Form.Group>
-                    </Col>
-                    <Col>
-                        <Form.Group className="mb-2">
-                            <Form.Label>6.</Form.Label>
-                            <Link href={formData.image_1} target="_blank"><Card.Img style={{ maxWidth: '50px', maxHeight: '50px' }} src={formData.image_6} /></Link>
-                        </Form.Group>
-                    </Col>
-                </Row>
                 <Row>
-                    <Col>
+                    <Col md={3}>
                         <Form.Group className="mb-3">
-                            <Form.Label>Image 1</Form.Label>
-                            <Form.Control size="sm" type="file" onChange={(e) => handleFileChange(e, "image_1")}/>
+                            <Form.Label>Upload image</Form.Label>
+                            <div className="upload-container">
+                                    <Form.Control
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => handleFileChange(e)}
+                                        className="file-input" />
+                                <div className="image-preview">
+                                    {formData.image ? (
+                                        <Image src={formData.image} alt="Preview" className="img-fluid" />
+                                    ) : (
+                                        <span>Choose an image</span>
+                                    )}
+                                </div>
+                            </div>
                         </Form.Group>
                     </Col>
-                    <Col>
+                    <Col md={9}>
                         <Form.Group className="mb-3">
-                            <Form.Label>Image 2</Form.Label>
-                            <Form.Control size="sm" type="file" onChange={(e) => handleFileChange(e, "image_2")} />
-                        </Form.Group>
-                    </Col>
-                    <Col>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Image 3</Form.Label>
-                            <Form.Control size="sm" type="file" onChange={(e) => handleFileChange(e, "image_3")} />
-                        </Form.Group>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Image 4</Form.Label>
-                            <Form.Control size="sm" type="file" onChange={(e) => handleFileChange(e, "image_4")} />
-                        </Form.Group>
-                    </Col>
-                    <Col>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Image 5</Form.Label>
-                            <Form.Control size="sm" type="file" onChange={(e) => handleFileChange(e, "image_5")}/>
-                        </Form.Group>
-                    </Col>
-                    <Col>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Image 6</Form.Label>
-                            <Form.Control size="sm" type="file" onChange={(e) => handleFileChange(e, "image_6")}/>
+                            <Form.Label>Images description</Form.Label>
+                            <div className="d-flex flex-wrap">
+                                {formData.images.map((img: any, index) => (
+                                    <div key={index} className="upload-description">
+                                        <div className="image-preview">
+                                            <Image src={img.url} alt="Preview" className="img-fluid" />
+                                        </div>
+                                        <span className="remove-file-description" onClick={() => handleRemoveFileDescription(img.image_id, index)}><CloseOutlined /></span>
+                                    </div>
+                                ))}
+                                <div className="upload-description">
+                                    <Form.Control
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => handleAddFileDescription(e)}
+                                        className="file-input" />
+                                    <div className="image-preview">
+                                        <span>Add</span>
+                                    </div>
+                                </div>
+                            </div>
                         </Form.Group>
                     </Col>
                 </Row>

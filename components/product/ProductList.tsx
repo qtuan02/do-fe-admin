@@ -1,5 +1,4 @@
 "use client"
-import Constants from "@/commons/environment";
 import { useEffect, useRef, useState } from "react";
 import { Button, ButtonGroup, Card, Form, Pagination, Table } from "react-bootstrap";
 import Loading from "../loading/loading";
@@ -20,12 +19,12 @@ export default function ProductListPage(){
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedBrand, setSelectedBrand] = useState('');
     
-    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [currentPage, setCurrentPage] = useState<any>(1);
     const [totalPages, setTotalPages] = useState<number>(1);
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [chooseCategory, setChooseCategory] = useState('');
     const [chooseBrand, setChooseBrand] = useState('');
-    const [limit, setLimit] = useState<number>(5);
+    const [limit, setLimit] = useState<any>(5);
     
 
     const inputRef = useRef<HTMLInputElement>(null);
@@ -36,9 +35,9 @@ export default function ProductListPage(){
     
     const fetchData = async () => {
         setIsLoading(true);
-        const data = await fetchApi.products(status, null, currentPage, searchTerm, chooseCategory, chooseBrand, limit);
-        const dataCategoryies = await fetchApi.allCategories();
-        const dataBrands = await fetchApi.allBrands();
+        const data = await fetchApi.products(currentPage, limit, chooseCategory, chooseBrand, searchTerm, status);
+        const dataCategoryies = await fetchApi.categories();
+        const dataBrands = await fetchApi.brands();
         setIsLoading(false);
         setCategories(dataCategoryies.data);
         setBrands(dataBrands.data);
@@ -47,24 +46,15 @@ export default function ProductListPage(){
     };
 
     const handleChangeStatus = async (product_id: any, status: any) => {
-        const token = await Cookies.get("token");
+        const token = await Cookies.get("token") as string;
         if(status === "true"){
             status = "false";
         }else{
             status = "true";
         }
         setIsLoading(true);
-        const response = await fetch(Constants.URL_V1+`/product/${product_id}`, {
-            method: 'PUT',
-            headers: {
-                'Accept': 'application/json, text/plain, */*',
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ status: status })
-        })
-        const data = await response.json();
-        if(response.ok){
+        const data = await fetchApi.updateStatusProduct(token, product_id, status);
+        if(data.status === 200){
             toast.success(data.message);
             fetchData();
         }else{
@@ -217,12 +207,12 @@ export default function ProductListPage(){
                     {products.map(item => (
                         <tr key={item.product_id}>
                             <td>{item.product_id}</td>
-                            <td> <Card.Img style={{ maxWidth: '50px', maxHeight: '50px' }} src={item.image_1} /></td>
+                            <td> <Card.Img style={{ maxWidth: '50px', maxHeight: '50px' }} src={item.image} /></td>
                             <td>{item.product_name}</td>
                             <td>{item.price}</td>
                             <td>{item.quantity}</td>
-                            <td>{item.category.category_name}</td>
-                            <td>{item.brand.brand_name}</td>
+                            <td>{item.category_name}</td>
+                            <td>{item.brand_name}</td>
                             <td><Form.Check 
                                 type="switch"
                                 checked={isChecked(item.status)}
