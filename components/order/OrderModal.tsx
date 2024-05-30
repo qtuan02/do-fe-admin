@@ -7,9 +7,10 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Slide from '@mui/material/Slide';
 import { TransitionProps } from '@mui/material/transitions';
-import Constants from '@/commons/environment';
 import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
+import fetchApi from '@/commons/api';
+import Loading from '../loading/loading';
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -22,27 +23,21 @@ const Transition = React.forwardRef(function Transition(
 
 export default function OrderModal(props: any) {
   const {showModal, setShowModal, orderId, updateOrderList, content, value} = props;
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const handleConfirm = async () => {
-    const token = await Cookies.get("token");
-    const response = await fetch(Constants.URL_V1+`/order/${orderId}`, {
-      method: 'PUT',
-      headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ status: `${value}` })
-    })
-    const data = await response.json();
-      if(response.ok){
-        toast.success(data.message);
-        updateOrderList();
-        handleClose();
-      }else{
-        toast.error(data.message);
-        handleClose();
-      }
+    const token = await Cookies.get("token") as string;
+    setIsLoading(true);
+    const data = await fetchApi.changeStatusOrder(token, orderId, value);
+    setIsLoading(false);
+    if(data.status === 200){
+      toast.success(data.message);
+      updateOrderList();
+      handleClose();
+    }else{
+      toast.error(data.message);
+      handleClose();
+    }
   }
 
   const handleClose = () => {
@@ -50,25 +45,28 @@ export default function OrderModal(props: any) {
   };
 
   return (
-    <React.Fragment>
-      <Dialog
-        open={showModal}
-        TransitionComponent={Transition}
-        keepMounted
-        onClose={handleClose}
-        aria-describedby="alert-dialog-slide-description"
-      >
-        <DialogTitle>{"NOTICE!"}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-slide-description">
-            Do you want <span className='font-bold'>{content}</span> this order?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button color="error" onClick={handleClose}>No</Button>
-          <Button color="success" onClick={() => handleConfirm()}>Yes</Button>
-        </DialogActions>
-      </Dialog>
-    </React.Fragment>
+    <>
+      <React.Fragment>
+        <Dialog
+          open={showModal}
+          TransitionComponent={Transition}
+          keepMounted
+          onClose={handleClose}
+          aria-describedby="alert-dialog-slide-description"
+        >
+          <DialogTitle>{"NOTICE!"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-slide-description">
+              Do you want <span className='font-bold'>{content}</span> this order?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button color="error" onClick={handleClose}>No</Button>
+            <Button color="success" onClick={() => handleConfirm()}>Yes</Button>
+          </DialogActions>
+        </Dialog>
+      </React.Fragment>
+      {isLoading && <Loading />}
+    </>
   );
 }

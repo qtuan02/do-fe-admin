@@ -46,9 +46,9 @@ const fetchApi = {
             return [];
         }
     },
-    orders: async (token: string, page: string = "", limit: string = "") => {
+    orders: async (token: string, page: string = "", limit: string = "", status: string = "", search: string = "") => {
         try {
-            const url = Constants.URL_V1+`/order?page=${page}&limit=${limit}`;
+            const url = Constants.URL_V1+`/order?page=${page}&limit=${limit}&status=${status}&search=${search}`;
             const response = await fetch( url, {
                 method: 'GET',
                 headers: {
@@ -271,6 +271,35 @@ const fetchApi = {
                 'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(formData)
+        });
+        return response.json();
+    },
+    orderDetail: async (token: string, order_id: number) => {
+        try {
+            const url = Constants.URL_V1+`/order/${order_id}`;
+            const response = await fetch( url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }}
+            );
+            return response.json();
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            return [];
+        }
+    },
+    changeStatusOrder: async (token: string, order_id: number, status: string) => {
+        const response = await fetch(Constants.URL_V1+`/order/${order_id}`, {
+            method: 'PUT',
+            headers: {
+              'Accept': 'application/json, text/plain, */*',
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ status: `${status}` })
         });
         return response.json();
     }
