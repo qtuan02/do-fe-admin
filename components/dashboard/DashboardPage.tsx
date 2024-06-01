@@ -18,19 +18,15 @@ export default function DashboardPage() {
     }, []);
     
     const fetchData = async () => {
-        setIsLoading(true);
         const token = await Cookies.get("token") as string;
-        const dataCategories = await fetchApi.categories();
-        const dataBrands = await fetchApi.brands();
-        const dataProducts = await fetchApi.products();
-        const dataUsers = await fetchApi.users(token);
-        const dataOrders = await fetchApi.orders(token);
-        setCategoriesCount(dataCategories.message);
-        setBrandsCount(dataBrands.message);
-        setProductsCount(dataProducts.message);
-        setUsersCount(dataUsers.message);
-        setOrdersCount(dataOrders.message);
+        setIsLoading(true);
+        const data = await fetchApi.dashboard(token);
         setIsLoading(false);
+        setCategoriesCount(data.data.category);
+        setBrandsCount(data.data.brand);
+        setProductsCount(data.data.product);
+        setUsersCount(data.data.user);
+        setOrdersCount(data.data.order);
     };
 
     return (

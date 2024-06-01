@@ -1,6 +1,23 @@
 import Constants from "./environment";
 
 const fetchApi = {
+    dashboard: async (token: string) => {
+        try {
+            const url = Constants.URL_V1+"/dashboard";
+            const response = await fetch( url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }}
+            );
+            return response.json();
+        }catch(error){
+            console.error('Error fetching data:', error);
+            return {};
+        }
+    },
     brands: async (page: string = "", limit: string = "", brand_name: string = "") => {
         try{
             const response = await fetch(Constants.URL_V1+`/brand?page=${page}&limit=${limit}&brand_name=${brand_name}`);

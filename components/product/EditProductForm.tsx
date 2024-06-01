@@ -29,6 +29,8 @@ export default function EditProductForm(product: any) {
         price: 0,
         quantity: 0,
         description: "",
+        promotion: 0,
+        quantity_sold: 0,
         status: "",
         images: []
     });
@@ -38,11 +40,11 @@ export default function EditProductForm(product: any) {
     }, []);
     
     const fetchData = async () => {
+        setIsLoading(true);
         const dataCategoryies = await fetchApi.categories();
-        setCategories(dataCategoryies.data);
         const dataBrands = await fetchApi.brands();
-        setBrands(dataBrands.data);
         const dataProduct = await fetchApi.findOneProduct(product.product_id);
+        setIsLoading(false);
         if (dataProduct.data) {
             setFormData({
                 ...formData,
@@ -53,13 +55,17 @@ export default function EditProductForm(product: any) {
                 price: dataProduct.data.price,
                 quantity: dataProduct.data.quantity,
                 description: dataProduct.data.description,
+                promotion: dataProduct.data.promotion,
+                quantity_sold: dataProduct.data.quantity_sold,
                 status: dataProduct.data.status,
                 images: dataProduct.data.images
             });
-
+            
             const contentBlocks: any = convertFromHTML(dataProduct.data.description);
             const contentState = ContentState.createFromBlockArray(contentBlocks);
             const newEditorState = EditorState.createWithContent(contentState);
+            setCategories(dataCategoryies.data);
+            setBrands(dataBrands.data);
             setEditorState(newEditorState);
         }
     }
@@ -227,16 +233,6 @@ export default function EditProductForm(product: any) {
                     </Col>
                     <Col xs={2}>
                         <Form.Group className="mb-3">
-                            <Form.Label>Brand</Form.Label>
-                            <Form.Select value={formData.brand_id} onChange={(e) => handleSelectChange(e, "brand_id")}>
-                                {brands.map((brand) => (
-                                    <option key={brand.brand_id} value={brand.brand_id}>{brand.brand_name}</option>
-                                ))}
-                            </Form.Select>
-                        </Form.Group>
-                    </Col>
-                    <Col xs={2}>
-                        <Form.Group className="mb-3">
                             <Form.Label>Category</Form.Label>
                             <Form.Select value={formData.category_id} onChange={(e) => handleSelectChange(e, "category_id")}>
                                 {categories.map((category) => (
@@ -245,21 +241,43 @@ export default function EditProductForm(product: any) {
                             </Form.Select>
                         </Form.Group>
                     </Col>
+                    <Col xs={2}>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Brand</Form.Label>
+                            <Form.Select value={formData.brand_id} onChange={(e) => handleSelectChange(e, "brand_id")}>
+                                {brands.map((brand) => (
+                                    <option key={brand.brand_id} value={brand.brand_id}>{brand.brand_name}</option>
+                                ))}
+                            </Form.Select>
+                        </Form.Group>
+                    </Col>
                 </Row>
                 <Row>
-                    <Col>
+                    <Col  xs={4}>
                         <Form.Group className="mb-3">
                             <Form.Label>Price</Form.Label>
                             <Form.Control size="sm" type="number" placeholder="100000" value={formData.price} onChange={(e) => handleTextChange(e, "price")}/>
                         </Form.Group>
                     </Col>
-                    <Col>
+                    <Col  xs={2}>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Promotion</Form.Label>
+                            <Form.Control size="sm" type="number" placeholder="0" value={formData.promotion} onChange={(e) => handleTextChange(e, "promotion")}/>
+                        </Form.Group>
+                    </Col>
+                    <Col  xs={2}>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Quantity sold</Form.Label>
+                            <Form.Control size="sm" type="number" placeholder="0" value={formData.quantity_sold} onChange={(e) => handleTextChange(e, "quantity_sold")}/>
+                        </Form.Group>
+                    </Col>
+                    <Col  xs={2}>
                         <Form.Group className="mb-3">
                             <Form.Label>Quantity</Form.Label>
                             <Form.Control size="sm" type="number" placeholder="0" value={formData.quantity} onChange={(e) => handleTextChange(e, "quantity")}/>
                         </Form.Group>
                     </Col>
-                    <Col>
+                    <Col  xs={2}>
                         <Form.Group className="mb-3">
                             <Form.Label>Status</Form.Label>
                             <Form.Select value={formData.status} onChange={(e) => handleSelectChange(e, "status")}>

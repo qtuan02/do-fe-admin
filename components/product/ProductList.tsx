@@ -36,13 +36,13 @@ export default function ProductListPage(){
     const fetchData = async () => {
         setIsLoading(true);
         const data = await fetchApi.products(currentPage, limit, chooseCategory, chooseBrand, searchTerm, status);
-        const dataCategoryies = await fetchApi.categories();
-        const dataBrands = await fetchApi.brands();
         setIsLoading(false);
-        setCategories(dataCategoryies.data);
-        setBrands(dataBrands.data);
         setProducts(data.data);
         setTotalPages(Math.ceil(data.message / limit));
+        const dataCategoryies = await fetchApi.categories();
+        const dataBrands = await fetchApi.brands();
+        setCategories(dataCategoryies.data);
+        setBrands(dataBrands.data);
     };
 
     const handleChangeStatus = async (product_id: any, status: any) => {
@@ -196,7 +196,9 @@ export default function ProductListPage(){
                         <th>Image</th>
                         <th>Name</th>
                         <th>Price</th>
-                        <th>Quantity</th>
+                        <th>Stock</th>
+                        <th>Sale</th>
+                        <th>Sold</th>
                         <th>Category</th>
                         <th>Brand</th>
                         <th>Status</th>
@@ -209,8 +211,10 @@ export default function ProductListPage(){
                             <td>{item.product_id}</td>
                             <td> <Card.Img style={{ maxWidth: '50px', maxHeight: '50px' }} src={item.image} /></td>
                             <td>{item.product_name}</td>
-                            <td>{item.price}</td>
+                            <td>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price)}</td>
                             <td>{item.quantity}</td>
+                            <td>{item.promotion === 0 ? item.promotion : `${item.promotion}%`}</td>
+                            <td>{item.quantity_sold}</td>
                             <td>{item.category_name}</td>
                             <td>{item.brand_name}</td>
                             <td><Form.Check 

@@ -29,6 +29,8 @@ export default function CreateProductForm() {
         price: 0,
         quantity: 0,
         description: "",
+        promotion: 0,
+        quantity_sold: 0,
         status: "true",
         images: []
     });
@@ -195,17 +197,6 @@ export default function CreateProductForm() {
                     </Col>
                     <Col xs={2}>
                         <Form.Group className="mb-3">
-                            <Form.Label>Brand</Form.Label>
-                            <Form.Select onChange={(e) => handleSelectChange(e, "brand_id")}>
-                                <option value="">--Brands</option>
-                                {brands.map((brand) => (
-                                    <option key={brand.brand_id} value={brand.brand_id}>{brand.brand_name}</option>
-                                ))}
-                            </Form.Select>
-                        </Form.Group>
-                    </Col>
-                    <Col xs={2}>
-                        <Form.Group className="mb-3">
                             <Form.Label>Category</Form.Label>
                             <Form.Select onChange={(e) => handleSelectChange(e, "category_id")}>
                                 <option value="">--Categories</option> 
@@ -215,22 +206,45 @@ export default function CreateProductForm() {
                             </Form.Select>
                         </Form.Group>
                     </Col>
+                    <Col xs={2}>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Brand</Form.Label>
+                            <Form.Select onChange={(e) => handleSelectChange(e, "brand_id")}>
+                                <option value="">--Brands</option>
+                                {brands.map((brand) => (
+                                    <option key={brand.brand_id} value={brand.brand_id}>{brand.brand_name}</option>
+                                ))}
+                            </Form.Select>
+                        </Form.Group>
+                    </Col>
                 </Row>
                 <Row>
-                    <Col>
-                        <Form.Group className="mb-3">
+                    <Col xs={4}>
+                        <Form.Group className="mb-2">
                             <Form.Label>Price</Form.Label>
                             <Form.Control size="sm" type="number" placeholder="100000" onChange={(e) => handleTextChange(e, "price")}/>
                         </Form.Group>
                     </Col>
-                    <Col>
-                        <Form.Group className="mb-3">
+                    <Col xs={2}>
+                        <Form.Group className="mb-2">
                             <Form.Label>Quantity</Form.Label>
                             <Form.Control size="sm" type="number" placeholder="0" onChange={(e) => handleTextChange(e, "quantity")}/>
                         </Form.Group>
                     </Col>
-                    <Col>
-                        <Form.Group className="mb-3">
+                    <Col xs={2}>
+                        <Form.Group className="mb-2">
+                            <Form.Label>Promotion</Form.Label>
+                            <Form.Control size="sm" type="number" placeholder="0" onChange={(e) => handleTextChange(e, "promotion")}/>
+                        </Form.Group>
+                    </Col>
+                    <Col xs={2}>
+                        <Form.Group className="mb-2">
+                            <Form.Label>Quantity sold</Form.Label>
+                            <Form.Control size="sm" type="number" placeholder="0" onChange={(e) => handleTextChange(e, "quantity")}/>
+                        </Form.Group>
+                    </Col>
+                    <Col xs={2}>
+                        <Form.Group className="mb-2">
                             <Form.Label>Status</Form.Label>
                             <Form.Select onChange={(e) => handleSelectChange(e, "status")}>
                                 <option value="true">Acctive</option>

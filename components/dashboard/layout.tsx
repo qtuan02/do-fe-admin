@@ -48,7 +48,7 @@ export default function NavbarLayout(props: Props) {
 
             <div className="flex flex-row flex-grow">
                 {isSidebarVisible && (
-                    <div className="w-1/5 bg-slate-300 overflow-hidden shadow-lg">
+                    <div className="w-1/6 bg-slate-300 overflow-hidden shadow-lg">
                         <Nav defaultActiveKey="/dashboard" className="flex flex-col py-4">
                             <Link href="/dashboard" className="px-6 py-3 flex items-center space-x-4 hover:bg-gray-200 rounded-md text-decoration-none text-dark">
                                 <span className="flex items-center space-x-2">
@@ -102,7 +102,7 @@ export default function NavbarLayout(props: Props) {
                     </Button>
                 </div>
 
-                <main className={`flex-grow p-5 bg-white ${isSidebarVisible ? 'w-4/5' : 'w-full'}`}>
+                <main className={`flex-grow pt-5 pr-5 pb-5 bg-white ${isSidebarVisible ? 'w-5/6' : 'w-full'}`}>
                     {children}
                 </main>
             </div>
