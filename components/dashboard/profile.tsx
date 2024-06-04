@@ -93,8 +93,9 @@ export default function Profile() {
                     <Col xs={7}>
                         <Form.Group className="mb-3">
                             <Form.Label>Phone</Form.Label>
-                            <Form.Control type="text" placeholder="Phone..." readOnly disabled
+                            <Form.Control type="text" placeholder="Phone..."
                                 value={formData.phone}
+                                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                             />
                         </Form.Group>
                     </Col>

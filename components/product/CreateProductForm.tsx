@@ -62,17 +62,20 @@ export default function CreateProductForm() {
     }
 
     const handleAddFileDescription = async (event: any) => {
-        const selectedImage = event.target.files[0];
+        const selectedFiles = event.target.files;
 
-        const data = await fetchApi.upload(selectedImage);
-        if (data.status === 200) {
-            setFormData((key: any) => ({
-                ...key,
-                images: [...key.images, data.data.url]
-            }));
-            toast.success(data.message);
-        } else {
-            toast.error(data.message);
+        for (const file of selectedFiles) {
+            const data = await fetchApi.upload(file);
+            if (data.status === 200) {
+                setFormData((key: any) => ({
+                    ...key,
+                    images: [...key.images, data.data.url]
+                }));
+                toast.success(data.message);
+            } else {
+                toast.error(data.message);
+                break;
+            }
         }
     }
 
@@ -177,6 +180,7 @@ export default function CreateProductForm() {
                                 <div className="upload-description">
                                     <Form.Control
                                         type="file"
+                                        multiple
                                         accept="image/*"
                                         onChange={(e) => handleAddFileDescription(e)}
                                         className="file-input" />

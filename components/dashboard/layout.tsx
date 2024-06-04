@@ -2,9 +2,8 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button, Dropdown, DropdownButton, Nav } from 'react-bootstrap';
-import { AppstoreOutlined, BulbOutlined, DashboardOutlined, ExportOutlined, PlusOutlined, ShoppingCartOutlined, TabletOutlined, UserOutlined, MenuOutlined, CloseOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, BulbOutlined, DashboardOutlined, PlusOutlined, ShoppingCartOutlined, TabletOutlined, UserOutlined, MenuOutlined, CloseOutlined } from '@ant-design/icons';
 import Cookies from 'js-cookie';
-import { jwtDecode } from 'jwt-decode';
 
 interface Props {
     children?: React.ReactNode;
@@ -21,13 +20,13 @@ export default function NavbarLayout(props: Props) {
 
     const handleLogout = async () => {
         Cookies.remove('token');
+        Cookies.remove('role');
         window.location.replace('/login');
     };
 
     const getRole = async () => {
-        const token = await Cookies.get("token") as string;
-        const decoded: any = await jwtDecode(token);
-        setRole(decoded.role);
+        const role = await Cookies.get("role") as string;
+        setRole(role);
     };
 
     const toggleSidebar = () => {
@@ -37,12 +36,12 @@ export default function NavbarLayout(props: Props) {
     return (
         <div className="min-h-screen flex flex-col bg-gray-100">
             <header className="w-full bg-black shadow-md flex items-center justify-between p-4 text-white h-20">
-                <div className="text-2xl font-bold">ADMIN DASHBOARD</div>
+                <div className="text-2xl font-bold"><a href="/dashboard" className='no-underline text-white'>ADMIN DASHBOARD</a></div>
                 <div className="flex items-center space-x-4">
-                <DropdownButton variant='info' title={<span className="uppercase">{role}</span>}>
-                    <Dropdown.Item href='/dashboard/profile'>Profile</Dropdown.Item>
-                    <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
-                </DropdownButton>
+                    <DropdownButton variant='info' title={<span className="uppercase">{role}</span>}>
+                        <Dropdown.Item href='/dashboard/profile'>Profile</Dropdown.Item>
+                        <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
+                    </DropdownButton>
                 </div>
             </header>
 

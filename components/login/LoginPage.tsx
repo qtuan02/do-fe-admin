@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Constants from "@/commons/environment";
 import Loading from "../loading/loading";
+import { jwtDecode } from "jwt-decode";
+import Cookies from 'js-cookie';
 
 export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
@@ -41,9 +43,15 @@ export default function LoginPage() {
             setIsLoading(false);
             const message = data.message;
             if(response.ok){
-                const token = data.data.token;
-                document.cookie = await `token=${token}; path=/`;
-                window.location.replace('/dashboard');
+                const token: any = data.data.token;
+                const decoded: any = await jwtDecode(token);
+                if(decoded.role === 'admin' || decoded.role === 'staff'){
+                    Cookies.set('token', token, { expires: 7 });
+                    Cookies.set('role', decoded.role, { expires: 7 });
+                    window.location.replace('/dashboard');
+                }else{
+                    setError("Không có quyền truy cập!");
+                }
             }else{
                 setError(message);
             }
