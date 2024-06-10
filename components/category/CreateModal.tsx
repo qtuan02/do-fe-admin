@@ -5,6 +5,7 @@ import Form from 'react-bootstrap/Form';
 import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
 import fetchApi from '@/commons/api';
+import { Image } from 'react-bootstrap';
 
 
 interface Iprops {
@@ -14,11 +15,24 @@ interface Iprops {
 }
 const CreateModal = (props: Iprops) => {
     const { showModalCreate, setShowModalCreate, updateCategoryList } = props
+    const [categoryImage, setCategoryImage] = useState<string>('')
     const [categoryName, setCategoryName] = useState<string>('')
+
+    const handleFileChange = async (event: any) => {  
+        const selectedImage = event.target.files[0];
+        
+        const data = await fetchApi.upload(selectedImage);
+        if (data.status === 200) {
+            setCategoryImage(data.data.url);
+            toast.success(data.message);
+        } else {
+            toast.error(data.message);
+        }
+    }
 
     const handleSubmit = async () => {
         const token = await Cookies.get("token") as string;
-        const data = await fetchApi.createCategory(token, categoryName);
+        const data = await fetchApi.createCategory(token, categoryImage, categoryName);
         if(data.status === 200){
             toast.success(data.message);
             handleCloseModal()
@@ -27,9 +41,10 @@ const CreateModal = (props: Iprops) => {
             toast.error(data.message);
             handleCloseModal();
         }
-    }
+    };
 
     const handleCloseModal = () => {
+        setCategoryImage('');
         setCategoryName('')
         setShowModalCreate(false)
     }
@@ -47,6 +62,23 @@ const CreateModal = (props: Iprops) => {
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Category image</Form.Label>
+                            <div className="upload-container">
+                                    <Form.Control
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => handleFileChange(e)}
+                                        className="file-input" />
+                                <div className="image-preview">
+                                    {categoryImage ? (
+                                        <Image src={categoryImage} alt="Preview" className="img-fluid" />
+                                    ) : (
+                                        <span>Choose an image</span>
+                                    )}
+                                </div>
+                            </div>
+                        </Form.Group>
                         <Form.Group className="mb-3">
                             <Form.Label>Category name</Form.Label>
                             <Form.Control type="text" placeholder="..."

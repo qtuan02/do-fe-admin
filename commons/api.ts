@@ -18,6 +18,46 @@ const fetchApi = {
             return {};
         }
     },
+    banners: async (token: string) => {
+        try {
+            const url = Constants.URL_V1+"/banner";
+            const response = await fetch( url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }}
+            );
+            return response.json();
+        }catch(error){
+            console.error('Error fetching data:', error);
+            return {};
+        }
+    },
+    createBanner: async (token: string, banner_image: string) => {
+        const response = await fetch(Constants.URL_V1+'/banner', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ banner_image: banner_image })
+        });
+        return response.json();
+    },
+    deleteBanner: async (token: string, banner_id: number) => {
+        const response = await fetch(Constants.URL_V1+`/banner/${banner_id}`, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+        });
+        return response.json();
+    },
     brands: async (page: string = "", limit: string = "", brand_name: string = "") => {
         try{
             const response = await fetch(Constants.URL_V1+`/brand?page=${page}&limit=${limit}&brand_name=${brand_name}`);
@@ -115,7 +155,7 @@ const fetchApi = {
         });
         return response.json();
     },
-    createCategory: async (token: string, category_name: string) => {
+    createCategory: async (token: string,category_image: string, category_name: string) => {
         const response = await fetch(Constants.URL_V1+'/category', {
             method: 'POST',
             headers: {
@@ -123,7 +163,7 @@ const fetchApi = {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ category_name: category_name })
+            body: JSON.stringify({ category_image: category_image ,category_name: category_name })
         });
         return response.json();
     },
@@ -138,7 +178,7 @@ const fetchApi = {
         });
         return response.json();
     },
-    updateCategory: async (token: string, category_id: number, category_name: string) => {
+    updateCategory: async (token: string, category_id: number, category_image: string, category_name: string) => {
         const response = await fetch(Constants.URL_V1+`/category/${category_id}`, {
             method: 'PUT',
             headers: {
@@ -146,7 +186,7 @@ const fetchApi = {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ category_name: category_name })
+            body: JSON.stringify({ category_image: category_image,category_name: category_name })
         });
         return response.json();
     },

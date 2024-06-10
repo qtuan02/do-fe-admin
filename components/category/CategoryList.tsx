@@ -1,6 +1,6 @@
 "use client"
 import Table from 'react-bootstrap/Table';
-import { Button, Form, Pagination } from 'react-bootstrap';
+import { Button, Card, Form, Pagination } from 'react-bootstrap';
 import { useEffect, useRef, useState } from 'react';
 import CreateModal from './CreateModal';
 import DeleteModal from './DeleteModal';
@@ -120,6 +120,7 @@ export default function CatagoriesList (){
                 <thead>
                     <tr>
                         <th>No</th>
+                        <th>Imgae</th>
                         <th>Name</th>
                         <th>Action</th>
                     </tr>
@@ -129,6 +130,7 @@ export default function CatagoriesList (){
                         return (
                             <tr key={item.category_id}>
                                 <td>{item.category_id}</td>
+                                <td> <Card.Img style={{ maxWidth: '50px', maxHeight: '50px' }} src={item.category_image} alt="..."/></td>
                                 <td>{item.category_name}</td>
                                 <td>
                                     <Button variant='warning' className='mr-3'
@@ -182,7 +184,6 @@ export default function CatagoriesList (){
                 setShowModalUpdate={setShowModalUpdate}
                 categoryItem={category}
                 updateCategoryList={fetchData}
-
             />
         </>
     )

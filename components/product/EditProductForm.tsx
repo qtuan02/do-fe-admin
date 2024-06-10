@@ -94,6 +94,7 @@ export default function EditProductForm(product: any) {
             const addImage = await fetchApi.addImageDescription(token, data.data.url, product.product_id);
             if(addImage.status === 200){
                 fetchData();
+                setIsLoading(false);
                 toast.success(addImage.message);
             }else{
                 toast.error(addImage.message);

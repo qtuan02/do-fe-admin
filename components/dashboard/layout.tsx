@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button, Dropdown, DropdownButton, Nav } from 'react-bootstrap';
-import { AppstoreOutlined, BulbOutlined, DashboardOutlined, PlusOutlined, ShoppingCartOutlined, TabletOutlined, UserOutlined, MenuOutlined, CloseOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, BulbOutlined, DashboardOutlined, PlusOutlined, ShoppingCartOutlined, TabletOutlined, UserOutlined, MenuOutlined, CloseOutlined, DesktopOutlined } from '@ant-design/icons';
 import Cookies from 'js-cookie';
 
 interface Props {
@@ -90,6 +90,12 @@ export default function NavbarLayout(props: Props) {
                                 <span className="flex items-center space-x-2">
                                     <PlusOutlined style={{ fontSize: '24px' }} />
                                     <span className="text-lg font-semibold">Add Product</span>
+                                </span>
+                            </Link>
+                            <Link href="/dashboard/banner" className="px-6 py-3 flex items-center space-x-4 hover:bg-gray-200 rounded-md text-decoration-none text-dark">
+                                <span className="flex items-center space-x-2">
+                                    <DesktopOutlined style={{ fontSize: '24px' }} />
+                                    <span className="text-lg font-semibold">Add Banner</span>
                                 </span>
                             </Link>
                         </Nav>
