@@ -5,7 +5,7 @@ import Form from 'react-bootstrap/Form';
 import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
 import fetchApi from '@/commons/api';
-import { Image } from 'react-bootstrap';
+import { Col, Image } from 'react-bootstrap';
 
 interface Iprops {
     showModalUpdate: boolean
@@ -69,23 +69,25 @@ const UpdateModal = (props: Iprops) => {
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Category image</Form.Label>
-                            <div className="upload-container">
-                                    <Form.Control
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(e) => handleFileChange(e)}
-                                        className="file-input" />
-                                <div className="image-preview">
-                                    {categoryImage ? (
-                                        <Image src={categoryImage} alt="Preview" className="img-fluid" />
-                                    ) : (
-                                        <span>Choose an image</span>
-                                    )}
+                        <Col xs={2}>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Category image</Form.Label>
+                                <div className="upload-container-modal">
+                                        <Form.Control
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => handleFileChange(e)}
+                                            className="file-input" />
+                                    <div className="image-preview">
+                                        {categoryImage ? (
+                                            <Image src={categoryImage} alt="Preview" className="img-fluid" />
+                                        ) : (
+                                            <span className='text-[14px]'>Choose an image</span>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        </Form.Group>
+                            </Form.Group>
+                        </Col>
                         <Form.Group className="mb-3">
                             <Form.Label>Category name</Form.Label>
                             <Form.Control type="text" placeholder="..."
