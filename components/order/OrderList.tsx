@@ -39,6 +39,7 @@ export default function OrderListPage() {
         setIsLoading(true);
         const data = await fetchApi.orders(token, currentPage, limit, status, searchTerm);
         setIsLoading(false);
+        setTotalPages(Math.ceil(data.message / limit));
         setOrders(data.data);
     };
 
@@ -112,7 +113,7 @@ export default function OrderListPage() {
                     <span>NOTE: </span>
                     <ButtonGroup aria-label="Basic button group">
                         <Button variant="contained" color='error' className='font-bold'>Cancel</Button>
-                        <Button variant="contained" color='warning' className='font-bold'>Waiting</Button>
+                        <Button variant="contained" color='warning' className='font-bold'>Shipping</Button>
                         <Button variant="contained" color='success' className='font-bold'>Complete</Button>
                     </ButtonGroup>
                 </div>
@@ -132,7 +133,7 @@ export default function OrderListPage() {
                     <option value="">--Status</option>
                     <option value="cancel">Cancel</option>
                     <option value="pending">Pending</option>
-                    <option value="waiting">Waiting</option>
+                    <option value="shipping">Shipping</option>
                     <option value="complete">Complete</option>
                 </Form.Select>
                 <Button variant="contained" className='h-9' onClick={() => handleSubmit()}>Apply</Button>

@@ -86,11 +86,11 @@ export default function OrderDetail(props: IProps) {
                                 <Button variant="contained" color='warning' sx={{ minWidth: '40px' }} onClick={() => {
                                     setShowModal(true)
                                     setOrderId(row.order_id)
-                                    setContent("waiting")
-                                    setValue("waiting")
+                                    setContent("shipping")
+                                    setValue("shipping")
                                 }}><PlusCircleOutlined /></Button>
                             </>
-                        ) : row.status === "waiting" ? (
+                        ) : row.status === "shipping" ? (
                             <>
                                 <Button variant="contained" color='error' className='mr-2' sx={{ minWidth: '40px' }} onClick={() => {
                                     setShowModal(true)
