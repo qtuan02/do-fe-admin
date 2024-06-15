@@ -7,9 +7,10 @@ import { Col, Form, Image, Row } from "react-bootstrap";
 import { toast } from "react-toastify";
 import Cookies from 'js-cookie';
 import Loading from "../loading/loading";
+import usePusher from "@/hooks/usePusher";
 
 export default function BannerPage() {
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [banners, setBanners] = useState<any []>([]);
 
     useEffect(() => {
@@ -18,10 +19,14 @@ export default function BannerPage() {
 
     const fetchData = async () => {
         const token = await Cookies.get("token") as string;
-        setIsLoading(true);
-        const data = await fetchApi.banners(token);
-        setIsLoading(false);
-        setBanners(data.data);
+        try{
+            const data = await fetchApi.banners(token);
+            setBanners(data.data);
+        }catch(err){
+            toast.error("Đã có lỗi xảy ra!");
+        }finally{
+            setIsLoading(false);
+        }
     }
 
     const handleAddBanner = async (event: any) => {

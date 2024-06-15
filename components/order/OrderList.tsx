@@ -14,10 +14,13 @@ import Cookies from 'js-cookie';
 import { Button, ButtonGroup } from '@mui/material';
 import fetchApi from '@/commons/api';
 import { Form, Pagination } from 'react-bootstrap';
+import PaginationComponent from '../layout/PaginationComponent';
+import usePusher from '@/hooks/usePusher';
+import { toast } from 'react-toastify';
 
 export default function OrderListPage() {
     const [orders, setOrders] = useState<any []>([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const [status, setStatus] = useState<string>("");
     const [currentPage, setCurrentPage] = useState<any>(1);
@@ -36,11 +39,15 @@ export default function OrderListPage() {
 
     const fetchData = async () => {
         const token = await Cookies.get("token") as string;
-        setIsLoading(true);
-        const data = await fetchApi.orders(token, currentPage, limit, status, searchTerm);
-        setIsLoading(false);
-        setTotalPages(Math.ceil(data.message / limit));
-        setOrders(data.data);
+        try{
+            const data = await fetchApi.orders(token, currentPage, limit, status, searchTerm);
+            setTotalPages(Math.ceil(data.message / limit));
+            setOrders(data.data);
+        }catch(err){
+            toast.error("Đã có lỗi xảy ra!");
+        }finally{
+            setIsLoading(false);
+        }
     };
 
     const handleSubmit = () => {
@@ -51,51 +58,6 @@ export default function OrderListPage() {
         setStatus(selectedStatus);
     };
 
-    const renderPaginationItems = () => {
-        const pageItems = [];
-        const pageRange = 2;
-        const ellipsis = <Pagination.Ellipsis />;
-        
-        if (totalPages <= 10) {
-            for (let page = 1; page <= totalPages; page++) {
-                pageItems.push(
-                    <Pagination.Item
-                        key={page}
-                        active={page === currentPage}
-                        onClick={() => handlePageChange(page)}
-                    >
-                        {page}
-                    </Pagination.Item>
-                );
-            }
-        } else {
-            const startPage = Math.max(1, currentPage - pageRange);
-            const endPage = Math.min(totalPages, currentPage + pageRange);
-            
-            if (startPage > 2) {
-                pageItems.push(ellipsis);
-            }
-
-            for (let page = startPage; page <= endPage; page++) {
-                pageItems.push(
-                    <Pagination.Item
-                        key={page}
-                        active={page === currentPage}
-                        onClick={() => handlePageChange(page)}
-                    >
-                        {page}
-                    </Pagination.Item>
-                );
-            }
-
-            if (endPage < totalPages) {
-                pageItems.push(ellipsis);
-            }
-        }
-
-        return pageItems;
-    };
-
     const handlePageChange = (pageNumber: number) => {
         setCurrentPage(pageNumber);
     };
@@ -104,6 +66,10 @@ export default function OrderListPage() {
         setLimit(Number(e.target.value));
         setCurrentPage(1);
     };
+
+    usePusher('order', 'order-add-user', fetchData);
+    usePusher('order', 'order-add-public', fetchData);
+    usePusher('order', 'order-update', fetchData);
 
     return (
         <>
@@ -168,13 +134,11 @@ export default function OrderListPage() {
                     <option value="15">15</option>
                 </Form.Select>
                 <div className="flex-grow" />
-                <Pagination className="m-0">
-                    <Pagination.First onClick={() => handlePageChange(1)} disabled={currentPage === 1} />
-                    <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
-                    {renderPaginationItems()}
-                    <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
-                    <Pagination.Last onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages} />
-                </Pagination>
+                <PaginationComponent
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    handlePageChange={handlePageChange}
+                />
             </div>
             {isLoading && <Loading />}
         </>

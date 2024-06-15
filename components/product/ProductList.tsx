@@ -7,6 +7,8 @@ import Cookies from 'js-cookie';
 import { toast } from "react-toastify";
 import fetchApi from "@/commons/api";
 import { useRouter } from "next/navigation";
+import usePusher from "@/hooks/usePusher";
+import PaginationComponent from "../layout/PaginationComponent";
 
 export default function ProductListPage(){
     const router = useRouter();
@@ -14,7 +16,7 @@ export default function ProductListPage(){
     const [categories, setCategories] = useState<any []>([]);
     const [brands, setBrands] = useState<any []>([]);
     const [status, setStatus] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedBrand, setSelectedBrand] = useState('');
@@ -34,15 +36,19 @@ export default function ProductListPage(){
     }, [currentPage, status, searchTerm, chooseCategory, chooseBrand, limit]);
     
     const fetchData = async () => {
-        setIsLoading(true);
-        const data = await fetchApi.products(currentPage, limit, chooseCategory, chooseBrand, searchTerm, status);
-        setIsLoading(false);
-        setProducts(data.data);
-        setTotalPages(Math.ceil(data.message / limit));
-        const dataCategoryies = await fetchApi.categories();
-        const dataBrands = await fetchApi.brands();
-        setCategories(dataCategoryies.data);
-        setBrands(dataBrands.data);
+        try{
+            const data = await fetchApi.products(currentPage, limit, chooseCategory, chooseBrand, searchTerm, status);
+            const dataCategoryies = await fetchApi.categories();
+            const dataBrands = await fetchApi.brands();
+            setTotalPages(Math.ceil(data.message / limit));
+            setProducts(data.data);
+            setCategories(dataCategoryies.data);
+            setBrands(dataBrands.data);
+        }catch(err){
+            toast.error("Đã có lỗi xảy ra!");
+        }finally{
+            setIsLoading(false);
+        }
     };
 
     const handleChangeStatus = async (product_id: any, status: any) => {
@@ -83,55 +89,14 @@ export default function ProductListPage(){
         setChooseBrand(selectedBrand);
     }
 
-    const renderPaginationItems = () => {
-        const pageItems = [];
-        const pageRange = 2;
-        const ellipsis = <Pagination.Ellipsis />;
-        
-        if (totalPages <= 10) {
-            for (let page = 1; page <= totalPages; page++) {
-                pageItems.push(
-                    <Pagination.Item
-                        key={page}
-                        active={page === currentPage}
-                        onClick={() => handlePageChange(page)}
-                    >
-                        {page}
-                    </Pagination.Item>
-                );
-            }
-        } else {
-            const startPage = Math.max(1, currentPage - pageRange);
-            const endPage = Math.min(totalPages, currentPage + pageRange);
-            
-            if (startPage > 2) {
-                pageItems.push(ellipsis);
-            }
-
-            for (let page = startPage; page <= endPage; page++) {
-                pageItems.push(
-                    <Pagination.Item
-                        key={page}
-                        active={page === currentPage}
-                        onClick={() => handlePageChange(page)}
-                    >
-                        {page}
-                    </Pagination.Item>
-                );
-            }
-
-            if (endPage < totalPages) {
-                pageItems.push(ellipsis);
-            }
-        }
-
-        return pageItems;
-    };
-
     const handleLimitChange = (e: any) => {
         setLimit(Number(e.target.value));
         setCurrentPage(1);
     };
+
+    usePusher('product', 'product-add', fetchData);
+    usePusher('product', 'product-delete', fetchData);
+    usePusher('product', 'product-update', fetchData);
 
     return (
         <>
@@ -236,13 +201,11 @@ export default function ProductListPage(){
                     <option value="15">15</option>
                 </Form.Select>
                 <div className="flex-grow" />
-                <Pagination className="m-0">
-                    <Pagination.First onClick={() => handlePageChange(1)} disabled={currentPage === 1} />
-                    <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
-                    {renderPaginationItems()}
-                    <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
-                    <Pagination.Last onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages} />
-                </Pagination>
+                <PaginationComponent
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    handlePageChange={handlePageChange}
+                />
             </div>
             {isLoading && <Loading />}
         </>

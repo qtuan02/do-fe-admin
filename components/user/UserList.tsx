@@ -10,11 +10,13 @@ import CreateModal from './CreateModal';
 import { toast } from 'react-toastify';
 import EditModal from './EditModal';
 import ChangePassword from './ChangePasswordModal';
+import usePusher from '@/hooks/usePusher';
+import PaginationComponent from '../layout/PaginationComponent';
 
 export default function UserList () {
     const [user, setUser] = useState<any>();
     const [users, setUsers] = useState<any []>([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const [showModalCreate, setShowModalCreate] = useState<boolean>(false);
     const [showModalEdit, setShowModalEdit] = useState<boolean>(false);
@@ -36,11 +38,15 @@ export default function UserList () {
     
     const fetchData = async () => {
         const token = await Cookies.get("token") as string;
-        setIsLoading(true);
-        const data = await fetchApi.users(token, currentPage, limit, searchTerm, status, role);
-        setIsLoading(false);
-        setUsers(data.data);
-        setTotalPages(Math.ceil(data.message / limit));
+        try{
+            const data = await fetchApi.users(token, currentPage, limit, searchTerm, status, role);
+            setUsers(data.data);
+            setTotalPages(Math.ceil(data.message / limit));
+        }catch(err){
+            toast.error("Đã có lỗi xảy ra!");
+        }finally{
+            setIsLoading(false);
+        }
     };
 
     const isChecked = (status: any) => {
@@ -67,6 +73,10 @@ export default function UserList () {
         }
     }
 
+    usePusher('user', 'user-add', fetchData);
+    usePusher('user', 'user-delete', fetchData);
+    usePusher('user', 'user-update', fetchData);
+
     const handleSubmit = () => {
         setCurrentPage(1)
         if (inputRef.current) {
@@ -79,52 +89,6 @@ export default function UserList () {
     const handlePageChange = (pageNumber: number) => {
         setCurrentPage(pageNumber);
     };
-
-    const renderPaginationItems = () => {
-        const pageItems = [];
-        const pageRange = 2;
-        const ellipsis = <Pagination.Ellipsis />;
-        
-        if (totalPages <= 10) {
-            for (let page = 1; page <= totalPages; page++) {
-                pageItems.push(
-                    <Pagination.Item
-                        key={page}
-                        active={page === currentPage}
-                        onClick={() => handlePageChange(page)}
-                    >
-                        {page}
-                    </Pagination.Item>
-                );
-            }
-        } else {
-            const startPage = Math.max(1, currentPage - pageRange);
-            const endPage = Math.min(totalPages, currentPage + pageRange);
-            
-            if (startPage > 2) {
-                pageItems.push(ellipsis);
-            }
-
-            for (let page = startPage; page <= endPage; page++) {
-                pageItems.push(
-                    <Pagination.Item
-                        key={page}
-                        active={page === currentPage}
-                        onClick={() => handlePageChange(page)}
-                    >
-                        {page}
-                    </Pagination.Item>
-                );
-            }
-
-            if (endPage < totalPages) {
-                pageItems.push(ellipsis);
-            }
-        }
-
-        return pageItems;
-    };
-
 
     const handleLimitChange = (e: any) => {
         setLimit(Number(e.target.value));
@@ -220,13 +184,11 @@ export default function UserList () {
                     <option value="15">15</option>
                 </Form.Select>
                 <div className="flex-grow" />
-                <Pagination className="m-0">
-                    <Pagination.First onClick={() => handlePageChange(1)} disabled={currentPage === 1} />
-                    <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
-                    {renderPaginationItems()}
-                    <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
-                    <Pagination.Last onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages} />
-                </Pagination>
+                <PaginationComponent
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    handlePageChange={handlePageChange}
+                />
             </div>
             {isLoading && <Loading />}
             <CreateModal 

@@ -15,7 +15,6 @@ const fetchApi = {
             return response.json();
         }catch(error){
             console.error('Error fetching data:', error);
-            return {};
         }
     },
     banners: async (token: string) => {
@@ -32,7 +31,6 @@ const fetchApi = {
             return response.json();
         }catch(error){
             console.error('Error fetching data:', error);
-            return {};
         }
     },
     createBanner: async (token: string, banner_image: string) => {
@@ -64,7 +62,6 @@ const fetchApi = {
             return response.json();
         }catch(error){
             console.error('Error fetching data:', error);
-            return [];
         }
     },
     categories: async (page: string = "", limit: string = "", category_name: string = "") => {
@@ -73,7 +70,6 @@ const fetchApi = {
             return response.json();
         }catch(error){
             console.error('Error fetching data:', error);
-            return [];
         }
     },
     products: async (page: string = "", limit: string = "", category_id: string = "", brand_id: string = "", product_name: string = "", status: string = "") => {
@@ -83,7 +79,6 @@ const fetchApi = {
             return response.json();
         } catch (error) {
             console.error('Error fetching data:', error);
-            return [];
         }
     },
     users: async (token: string, page: string = "", limit: string = "", phone: string = "", status: string = "", role: string = "") => {
@@ -100,7 +95,6 @@ const fetchApi = {
             return response.json();
         } catch (error) {
             console.error('Error fetching data:', error);
-            return [];
         }
     },
     orders: async (token: string, page: string = "", limit: string = "", status: string = "", search: string = "") => {
@@ -117,7 +111,6 @@ const fetchApi = {
             return response.json();
         } catch (error) {
             console.error('Error fetching data:', error);
-            return [];
         }
     },
     createBrand: async (token: string, brand_name: string) => {
@@ -234,7 +227,7 @@ const fetchApi = {
             return response.json();
         }catch(error){
             console.error('Error fetching data:', error);
-            return {};
+            
         }
     },
     deleteImageDescription: async (token: string, image_id:number) => {
@@ -345,7 +338,7 @@ const fetchApi = {
             return response.json();
         } catch (error) {
             console.error('Error fetching data:', error);
-            return [];
+            
         }
     },
     changeStatusOrder: async (token: string, order_id: number, status: string) => {

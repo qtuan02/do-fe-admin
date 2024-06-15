@@ -1,6 +1,6 @@
 "use client"
 import Table from 'react-bootstrap/Table';
-import { Button, Form, Pagination } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import { useEffect, useRef, useState } from 'react';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import fetchApi from '@/commons/api';
@@ -8,12 +8,15 @@ import Loading from '../loading/loading';
 import BrandCreateModal from './CreateModal';
 import BrandDeleteModal from './DeleteModal';
 import BrandEditModal from './EditModal';
+import usePusher from '@/hooks/usePusher';
+import PaginationComponent from '../layout/PaginationComponent';
+import { toast } from 'react-toastify';
 
 
 export default function BrandListPage() {
     const [brands, setBrands] = useState<any []>([]);
     const [brand, setBrand] = useState<any | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const [showModalCreate, setShowModalCreate] = useState<boolean>(false);
     const [showModalDelete, setShowModalDelete] = useState<boolean>(false);
@@ -31,11 +34,15 @@ export default function BrandListPage() {
     }, [currentPage, searchTerm, limit]);
     
     const fetchData = async () => {
-        setIsLoading(true);
-        const data = await fetchApi.brands(currentPage, limit, searchTerm);
-        setIsLoading(false);
-        setBrands(data.data);
-        setTotalPages(Math.ceil(data.message / limit));
+        try{
+            const data = await fetchApi.brands(currentPage, limit, searchTerm);
+            setBrands(data.data);
+            setTotalPages(Math.ceil(data.message / limit));
+        }catch(err){
+            toast.error("Đã có lỗi xảy ra!");
+        }finally{
+            setIsLoading(false);
+        }
     };
 
     const handlePageChange = (pageNumber: number) => {
@@ -49,56 +56,14 @@ export default function BrandListPage() {
         }
     };
 
-    const renderPaginationItems = () => {
-        const pageItems = [];
-        const pageRange = 2;
-        const ellipsis = <Pagination.Ellipsis />;
-        
-        if (totalPages <= 10) {
-            for (let page = 1; page <= totalPages; page++) {
-                pageItems.push(
-                    <Pagination.Item
-                        key={page}
-                        active={page === currentPage}
-                        onClick={() => handlePageChange(page)}
-                    >
-                        {page}
-                    </Pagination.Item>
-                );
-            }
-        } else {
-            const startPage = Math.max(1, currentPage - pageRange);
-            const endPage = Math.min(totalPages, currentPage + pageRange);
-            
-            if (startPage > 2) {
-                pageItems.push(ellipsis);
-            }
-
-            for (let page = startPage; page <= endPage; page++) {
-                pageItems.push(
-                    <Pagination.Item
-                        key={page}
-                        active={page === currentPage}
-                        onClick={() => handlePageChange(page)}
-                    >
-                        {page}
-                    </Pagination.Item>
-                );
-            }
-
-            if (endPage < totalPages) {
-                pageItems.push(ellipsis);
-            }
-        }
-
-        return pageItems;
-    };
-
-
     const handleLimitChange = (e: any) => {
         setLimit(Number(e.target.value));
         setCurrentPage(1);
     };
+
+    usePusher('brand', 'brand-add', fetchData);
+    usePusher('brand', 'brand-delete', fetchData);
+    usePusher('brand', 'brand-update', fetchData);
 
     return (
         <>
@@ -151,13 +116,11 @@ export default function BrandListPage() {
                     <option value="15">15</option>
                 </Form.Select>
                 <div className="flex-grow" />
-                <Pagination className="m-0">
-                    <Pagination.First onClick={() => handlePageChange(1)} disabled={currentPage === 1} />
-                    <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
-                    {renderPaginationItems()}
-                    <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
-                    <Pagination.Last onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages} />
-                </Pagination>
+                <PaginationComponent
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    handlePageChange={handlePageChange}
+                />
             </div>
             {isLoading && <Loading />}
             <BrandCreateModal
