@@ -8,8 +8,8 @@ import Cookies from 'js-cookie';
 export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
-        account: "",
-        password: ""
+        account: "huynhquoctuan200702@gmail.com",
+        password: "Admin@123"
     });
     const [error, setError] = useState("")
     const handleChange = async (e:any) => {
@@ -65,8 +65,8 @@ export default function LoginPage() {
     <div className="shadow-lg p-5 border-t-4 border-green-400 rounded-lg">
         <h1 className="text-xl font-bold my-4">LOGIN ADMIN</h1>
         <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
-            <input onChange={handleChange} name="account" type="text" placeholder="Account" className="w-[400px] border border-gray-200 py-2 px-6 bg-zinc-100/40"/>
-            <input onChange={handleChange} name="password" type="password" placeholder="Password" className="w-[400px] border border-gray-200 py-2 px-6 bg-zinc-100/40"/>
+            <input onChange={handleChange} name="account" type="text" placeholder="Account" value="huynhquoctuan200702@gmail.com" className="w-[400px] border border-gray-200 py-2 px-6 bg-zinc-100/40"/>
+            <input onChange={handleChange} name="password" type="password" placeholder="Password" value="Admin@123" className="w-[400px] border border-gray-200 py-2 px-6 bg-zinc-100/40"/>
             {error && (
                 <div className="bg-red-500 text-white w-fit text-sm py-1 px-3 rounded-md mt-2">{error}</div>
             )}
